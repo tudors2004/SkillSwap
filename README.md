@@ -1,16 +1,14 @@
-# skillswap
+# SkillSwap
 
-SkillSwap is a Flutter mobile application that simplifies the exchange of knowledge and skills between users, where time is the sole currency.
+**SkillSwap** is a Flutter mobile application that simplifies the exchange of knowledge and skills between users, where time is the sole currency.
 
-## Getting Started
+### Project Overview
 
-This project is a starting point for a Flutter application.
+SkillSwap creates a fair, community-oriented economy where instead of paying for services with money, users exchange their abilities - for example, one hour of flute lessons for one hour of german tutoring, or two hours of padel coaching for two hours of IT support.
 
-A few resources to get you started if this is your first Flutter project:
+Each user has two profiles:
+- **Offer Profile** - lists the skills they can share.
+- **Request Profile** - lists the skills or services they want to learn or receive.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+When two users have compatible offers and requests, the app creates a match.  
+After completing their exchange, both users confirm it, and the system automatically updates their Time Wallet (personal time balance).
