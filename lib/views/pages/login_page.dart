@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:skillswap/views/pages/home_page.dart';
 import 'package:skillswap/views/pages/register_page.dart';
+import 'package:skillswap/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,7 +14,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
   late TapGestureRecognizer _signUpRecognizer;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -27,16 +31,81 @@ class _LoginPageState extends State<LoginPage> {
       };
   }
 
+  Future<void> _handleLogin() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final userCredential = await _authService.signInWithEmail(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (userCredential != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final userCredential = await _authService.signInWithGoogle();
+
+      if (userCredential != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Google sign-in cancelled')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Google sign-in failed: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F4ED), // Background color from the image
-      body: Padding(
+      backgroundColor: const Color(0xFFF8F4ED),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            SizedBox(height: MediaQuery.of(context).size.height * 0.1),
             // SkillSwap Title
             const Text(
               'SkillSwap',
@@ -105,22 +174,25 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             const SizedBox(height: 32),
-
-            // Continue Button
             ElevatedButton(
-              onPressed: () {
-                // TODO: Implement login/registration logic here
-                print('Email: ${_emailController.text}');
-                print('Password: ${_passwordController.text}');
-              },
+              onPressed: _isLoading ? null : _handleLogin,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black, // Button background color
+                backgroundColor: Colors.black,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
               ),
-              child: const Text(
+              child: _isLoading
+                  ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+                  : const Text(
                 'Log in',
                 style: TextStyle(
                   fontSize: 18,
@@ -128,28 +200,37 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-        const SizedBox(height: 24), // Space before the new text
-
-        // *** NEW CLICKABLE TEXT ***
-        Text.rich(
-          TextSpan(
-            text: "You don't have an account? ",
-            style: const TextStyle(color: Colors.black54, fontSize: 16),
-            children: <TextSpan>[
-              TextSpan(
-                text: 'Sign up',
-                style: const TextStyle(
-                  color: Color(0xFF9B3A7B), // Theme color
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.underline,
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _isLoading ? null : _handleGoogleSignIn,
+              icon: const Icon(Icons.g_mobiledata, size: 24),
+              label: const Text('Continue with Google'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
-                recognizer: _signUpRecognizer, // This makes it clickable
               ),
-            ],
-          ),
-          textAlign: TextAlign.center,
-          ),
-
+            ),
+            const SizedBox(height: 24),
+            Text.rich(
+              TextSpan(
+                text: "You don't have an account? ",
+                style: const TextStyle(color: Colors.black54, fontSize: 16),
+                children: <TextSpan>[
+                  TextSpan(
+                    text: 'Sign up',
+                    style: const TextStyle(
+                      color: Color(0xFF9B3A7B),
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                    ),
+                    recognizer: _signUpRecognizer,
+                  ),
+                ],
+              ),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
@@ -160,6 +241,7 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _signUpRecognizer.dispose();
     super.dispose();
   }
 }

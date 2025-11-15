@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:skillswap/views/pages/login_page.dart';
 import 'package:skillswap/views/pages/welcome_page.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -24,7 +23,7 @@ class SkillSwapApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const LoginPage(),
+      home: const WelcomePage(),
     );
   }
 }
