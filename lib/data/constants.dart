@@ -23,3 +23,10 @@ class KTextStyle {
     color: Color(0xFF999999),
   );
 }
+//
+// class KValue{
+//   static const String basicLayout = 'Basic Layout';
+//   static const String fixBugs = 'Fix Bugs';
+//   static const cleanUi = 'Clean Ui';
+//   static const String keyConcepts = 'Key Concepts';
+// }
