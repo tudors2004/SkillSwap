@@ -3,6 +3,9 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  awesome_notifications
+  file_selector_linux
+  flutter_localization
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

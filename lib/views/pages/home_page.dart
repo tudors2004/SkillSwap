@@ -89,7 +89,8 @@ class _HomePageState extends State<HomePage> {
               title: const Text('Settings'),
               onTap: () {
                 Navigator.pop(context);
-                // Navigate to settings
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsPage()),
+                    );
               },
             ),
             ListTile(

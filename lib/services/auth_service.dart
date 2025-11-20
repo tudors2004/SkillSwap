@@ -16,52 +16,51 @@ class AuthService {
   // Sign in with Google
   Future<UserCredential?> signInWithGoogle() async {
     try {
-      // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-      // If user cancels the sign-in
       if (googleUser == null) return null;
 
-      // Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-      // Create a new credential
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Sign in to Firebase with the Google credential
       return await _auth.signInWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
     } catch (e) {
-      print('Error signing in with Google: $e');
-      return null;
+      throw Exception('Failed to sign in with Google: $e');
     }
   }
 
   // Sign in with email and password
-  Future<UserCredential?> signInWithEmail(String email, String password) async {
+  Future<UserCredential> signInWithEmail(String email, String password) async {
     try {
       return await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-    } catch (e) {
-      print('Error signing in with email: $e');
-      rethrow;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
     }
   }
 
   // Register with email and password
-  Future<UserCredential?> registerWithEmail(String email, String password) async {
+  Future<UserCredential> registerWithEmail(String email, String password) async {
     try {
-      return await _auth.createUserWithEmailAndPassword(
+      final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-    } catch (e) {
-      print('Error registering with email: $e');
-      rethrow;
+
+      // Send email verification
+      await userCredential.user?.sendEmailVerification();
+
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
     }
   }
 
@@ -73,8 +72,7 @@ class AuthService {
         _googleSignIn.signOut(),
       ]);
     } catch (e) {
-      print('Error signing out: $e');
-      rethrow;
+      throw Exception('Failed to sign out: $e');
     }
   }
 
@@ -82,9 +80,53 @@ class AuthService {
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
-    } catch (e) {
-      print('Error sending password reset email: $e');
-      rethrow;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
+  // Send email verification
+  Future<void> sendEmailVerification() async {
+    try {
+      await _auth.currentUser?.sendEmailVerification();
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
+  // Delete account
+  Future<void> deleteAccount() async {
+    try {
+      await _auth.currentUser?.delete();
+      await _googleSignIn.signOut();
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
+  // Handle Firebase Auth exceptions with user-friendly messages
+  String _handleAuthException(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'user-not-found':
+        return 'No user found with this email.';
+      case 'wrong-password':
+        return 'Wrong password provided.';
+      case 'email-already-in-use':
+        return 'An account already exists with this email.';
+      case 'invalid-email':
+        return 'The email address is invalid.';
+      case 'weak-password':
+        return 'The password is too weak.';
+      case 'user-disabled':
+        return 'This account has been disabled.';
+      case 'too-many-requests':
+        return 'Too many requests. Try again later.';
+      case 'operation-not-allowed':
+        return 'This operation is not allowed.';
+      case 'requires-recent-login':
+        return 'Please sign in again to perform this action.';
+      default:
+        return e.message ?? 'An authentication error occurred.';
     }
   }
 }
