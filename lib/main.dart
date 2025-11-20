@@ -6,6 +6,8 @@ import 'package:skillswap/providers/theme_provider.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:skillswap/services/notification_service.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,7 +15,15 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await NotificationService().initialize();
-  runApp(const SkillSwapApp());
+  await EasyLocalization.ensureInitialized();
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('fr'), Locale('de')],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      child: const SkillSwapApp(),
+    ),
+  );
 }
 
 class SkillSwapApp extends StatelessWidget {
@@ -31,6 +41,9 @@ class SkillSwapApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'SkillSwap',
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
             themeMode: themeProvider.themeMode,
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

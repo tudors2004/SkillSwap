@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:skillswap/providers/theme_provider.dart';
 import 'package:skillswap/providers/settings_provider.dart';
 import 'package:skillswap/views/pages/change_password_page.dart';
@@ -14,47 +15,47 @@ class SettingsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text('settings'.tr()),
       ),
       body: ListView(
         children: [
-          _buildSectionHeader('Appearance'),
+          _buildSectionHeader('appearance'.tr()),
           SwitchListTile(
-            title: const Text('Dark Mode'),
+            title: Text('dark_mode'.tr()),
             value: themeProvider.themeMode == ThemeMode.dark,
             onChanged: (value) {
               themeProvider.toggleTheme();
             },
           ),
-          _buildSectionHeader('General'),
+          _buildSectionHeader('general'.tr()),
           ListTile(
-            title: const Text('Language'),
-            subtitle: Text(_getLanguageName(settingsProvider.language)),
+            title: Text('language'.tr()),
+            subtitle: Text(_getLanguageName(context.locale.languageCode)),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () => _showLanguageDialog(context, settingsProvider),
+            onTap: () => _showLanguageDialog(context),
           ),
           SwitchListTile(
-            title: const Text('Notifications'),
-            subtitle: const Text('Enable push notifications'),
+            title: Text('notifications'.tr()),
+            subtitle: Text('enable_push_notifications'.tr()),
             value: settingsProvider.notificationsEnabled,
             onChanged: (value) {
               settingsProvider.setNotificationsEnabled(value);
             },
           ),
-          _buildSectionHeader('Privacy'),
+          _buildSectionHeader('privacy'.tr()),
           SwitchListTile(
-            title: const Text('Private Account'),
-            subtitle: const Text('Only approved followers can see your posts'),
+            title: Text('private_account'.tr()),
+            subtitle: Text('only_approved_followers'.tr()),
             value: settingsProvider.isAccountPrivate,
             onChanged: (value) {
               settingsProvider.setAccountPrivacy(value);
             },
           ),
-          _buildSectionHeader('Security'),
+          _buildSectionHeader('security'.tr()),
           ListTile(
             leading: const Icon(Icons.lock),
-            title: const Text('Change Password'),
-            subtitle: const Text('Update your account password'),
+            title: Text('change_password'.tr()),
+            subtitle: Text('update_password'.tr()),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
               Navigator.push(
@@ -85,47 +86,48 @@ class SettingsPage extends StatelessWidget {
   String _getLanguageName(String code) {
     switch (code) {
       case 'en':
-        return 'English';
+        return 'english'.tr();
       case 'fr':
-        return 'Français';
+        return 'french'.tr();
       case 'de':
-        return 'Deutsch';
+        return 'german'.tr();
       default:
-        return 'English';
+        return 'english'.tr();
     }
   }
-  void _showLanguageDialog(BuildContext context, SettingsProvider provider) {
+
+  void _showLanguageDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Select Language'),
+        title: Text('select_language'.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            RadioListTile<String>(
-              title: const Text('English'),
-              value: 'en',
-              groupValue: provider.language,
+            RadioListTile<Locale>(
+              title: Text('english'.tr()),
+              value: const Locale('en'),
+              groupValue: context.locale,
               onChanged: (value) {
-                provider.setLanguage(value!);
+                context.setLocale(value!);
                 Navigator.pop(context);
               },
             ),
-            RadioListTile<String>(
-              title: const Text('Français'),
-              value: 'fr',
-              groupValue: provider.language,
+            RadioListTile<Locale>(
+              title: Text('french'.tr()),
+              value: const Locale('fr'),
+              groupValue: context.locale,
               onChanged: (value) {
-                provider.setLanguage(value!);
+                context.setLocale(value!);
                 Navigator.pop(context);
               },
             ),
-            RadioListTile<String>(
-              title: const Text('Deutsch'),
-              value: 'de',
-              groupValue: provider.language,
+            RadioListTile<Locale>(
+              title: Text('german'.tr()),
+              value: const Locale('de'),
+              groupValue: context.locale,
               onChanged: (value) {
-                provider.setLanguage(value!);
+                context.setLocale(value!);
                 Navigator.pop(context);
               },
             ),
@@ -134,6 +136,4 @@ class SettingsPage extends StatelessWidget {
       ),
     );
   }
-
-
 }

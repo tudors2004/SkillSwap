@@ -51,6 +51,8 @@ dependencies:
   flutter_localization: ^0.3.3
   permission_handler: ^12.0.1
   awesome_notifications: ^0.10.1
+  easy_localization: ^3.0.8
+  multilingual: ^1.1.7
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +80,7 @@ flutter:
   assets:
     - assets/images/
     - assets/animations/
+    - assets/translations/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
