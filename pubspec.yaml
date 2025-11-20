@@ -47,6 +47,9 @@ dependencies:
   cloud_firestore: ^6.1.0
   firebase_storage: ^13.0.4
   image_picker: ^1.2.1
+  camera: ^0.11.3
+  flutter_localization: ^0.3.3
+  permission_handler: ^12.0.1
 
 dev_dependencies:
   flutter_test:
