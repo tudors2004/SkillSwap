@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skillswap/services/notification_service.dart';
 
 class SettingsProvider extends ChangeNotifier {
   static const String _languageKey = 'language';
@@ -35,6 +36,16 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<void> setNotificationsEnabled(bool enabled) async {
+    if (enabled) {
+      await NotificationService().requestPermissionIfNeeded();
+      bool isAllowed = await NotificationService().requestPermission();
+      if (!isAllowed) {
+        return;
+      }
+    } else {
+      await NotificationService().cancelAllNotifications();
+    }
+
     _notificationsEnabled = enabled;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();

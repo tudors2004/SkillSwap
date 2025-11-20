@@ -50,6 +50,7 @@ dependencies:
   camera: ^0.11.3
   flutter_localization: ^0.3.3
   permission_handler: ^12.0.1
+  awesome_notifications: ^0.10.1
 
 dev_dependencies:
   flutter_test:

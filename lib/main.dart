@@ -5,12 +5,14 @@ import 'package:skillswap/providers/settings_provider.dart';
 import 'package:skillswap/providers/theme_provider.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:skillswap/services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await NotificationService().initialize();
   runApp(const SkillSwapApp());
 }
 
