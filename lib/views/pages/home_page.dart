@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skillswap/services/auth_service.dart';
 import 'package:skillswap/views/pages/login_page.dart';
 import 'package:skillswap/views/pages/settings_page.dart';
+import 'package:skillswap/views/pages/profile_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -304,17 +305,6 @@ class MySkillsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Text('My Skills Page - Coming Soon'),
-    );
-  }
-}
-
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Profile Page - Coming Soon'),
     );
   }
 }
