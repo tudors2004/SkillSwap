@@ -171,4 +171,16 @@ class ProfileService {
       print('Error deleting profile picture: $e');
     }
   }
+  Future<Map<String, dynamic>?> getUserProfile() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return null;
+
+      final doc = await _firestore.collection('users').doc(user.uid).get();
+      return doc.data();
+    } catch (e) {
+      print('Error getting user profile: $e');
+      return null;
+    }
+  }
 }

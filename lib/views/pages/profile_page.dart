@@ -28,10 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
     if (!mounted) return;
 
     if (!isCompleted) {
-      setState(() {
-        _isLoading = false;
-      });
-      _showSetupDialog();
+      _navigateToProfileSetup();
     } else {
       await _loadProfile();
     }
@@ -41,6 +38,13 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final data = await _profileService.getProfile();
       if (mounted) {
+        if (data == null ||
+            data['profileSetupCompleted'] != true ||
+            data['name'] == null) {
+          _showSetupDialog();
+          return;
+        }
+
         setState(() {
           _profileData = data;
           _isLoading = false;
@@ -85,11 +89,15 @@ class _ProfilePageState extends State<ProfilePage> {
       MaterialPageRoute(builder: (context) => const ProfileSetupPage()),
     );
 
-    if (result == true) {
+    if (result == true && mounted) {
       setState(() {
         _isLoading = true;
       });
       await _loadProfile();
+    } else if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 

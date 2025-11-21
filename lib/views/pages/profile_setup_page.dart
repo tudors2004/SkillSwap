@@ -4,6 +4,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:skillswap/services/profile_service.dart';
 import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:skillswap/data/constants.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
 
 class ProfileSetupPage extends StatefulWidget {
@@ -16,6 +18,7 @@ class ProfileSetupPage extends StatefulWidget {
 class _ProfileSetupPageState extends State<ProfileSetupPage> {
   final _formKey = GlobalKey<FormState>();
   final ProfileService _profileService = ProfileService();
+  String _selectedCountryCode = '+1';
 
   int _currentStep = 0;
 
@@ -26,7 +29,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
   String? _nationality;
   String? _profilePicturePath;
   String? _location;
-  final List<String> _skills = [];
+  final List<String> _skills = [];           //TODO: REPLACE SKILLS WITH DESCRIPTION
   final _skillController = TextEditingController();
 
   // Preferences
@@ -35,6 +38,75 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
   String? _preferredReligion;
   RangeValues _ageRange = const RangeValues(18, 65);
   double _locationRange = 50;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExistingProfile();
+  }
+
+  Future<void> _loadExistingProfile() async {
+    try {
+      final profile = await _profileService.getProfile();
+
+      if (profile != null && mounted) {
+        setState(() {
+          _nameController.text = profile['name'] ?? '';
+          _dateOfBirth = profile['dateOfBirth']?.toDate();
+          _gender = profile['gender'];
+          _nationality = profile['nationality'];
+
+          // Parse phone number
+          final phoneNumber = profile['phoneNumber'] as String?;
+          if (phoneNumber != null) {
+            final code = Constants.phoneCountryCodes.firstWhere(
+                  (c) => phoneNumber.startsWith(c['code']!),
+              orElse: () => {'code': '+1'},
+            );
+            _selectedCountryCode = code['code']!;
+            _phoneController.text = phoneNumber.substring(_selectedCountryCode.length);
+          }
+
+          _profilePicturePath = profile['profilePicturePath'] as String?;
+
+          final locationData = profile['location'];
+          if (locationData != null) {
+            if (locationData is String) {
+              _location = locationData;
+            } else {
+              _location = '${locationData.latitude},${locationData.longitude}';
+            }
+          }
+          //TODO: REPLACE SKILLS WITH DESCRIPTION
+          final skills = profile['skills'] as List?;
+          if (skills != null) {
+            _skills.clear();
+            _skills.addAll(skills.cast<String>());
+          }
+
+          final prefs = profile['preferences'] as Map<String, dynamic>?;
+          if (prefs != null) {
+            _preferredGender = prefs['gender'];
+            _preferredNationality = prefs['nationality'];
+            _preferredReligion = prefs['religion'];
+
+            final ageRange = prefs['ageRange'] as Map<String, dynamic>?;
+            if (ageRange != null) {
+              _ageRange = RangeValues(
+                (ageRange['min'] as num).toDouble(),
+                (ageRange['max'] as num).toDouble(),
+              );
+            }
+
+            _locationRange = (prefs['locationRange'] as num?)?.toDouble() ?? 50;
+          }
+        });
+      }
+    } catch (e) {
+      print('Error loading existing profile: $e');
+    }
+  }
+
 
   @override
   void dispose() {
@@ -119,7 +191,6 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
 
     if (cameraPermission != true) return false;
 
-    // Request actual system permission
     final status = await Permission.camera.request();
 
     if (status.isDenied || status.isPermanentlyDenied) {
@@ -162,7 +233,6 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
 
     if (result != true) return;
 
-    // Show loading indicator
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -183,7 +253,6 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
     }
 
     try {
-      // Check if location services are enabled
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         if (mounted) {
@@ -198,7 +267,6 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         return;
       }
 
-      // Request permission
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
@@ -273,7 +341,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
     }
   }
 
-
+  //TODO: REPLACE SKILLS WITH DESCRIPTION
   void _addSkill() {
     if (_skillController.text.isNotEmpty) {
       setState(() {
@@ -293,15 +361,16 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       }
 
       try {
+        final fullPhoneNumber = '$_selectedCountryCode${_phoneController.text}';
         await _profileService.saveProfile(
           name: _nameController.text,
           dateOfBirth: _dateOfBirth!,
           gender: _gender!,
           nationality: _nationality!,
-          phoneNumber: _phoneController.text,
+          phoneNumber: fullPhoneNumber,
           profilePicturePath: _profilePicturePath,
           location: _location,
-          skills: _skills,
+          skills: _skills,            //TODO: REPLACE SKILLS WITH DESCRIPTION
           preferences: {
             'gender': _preferredGender,
             'nationality': _preferredNationality,
@@ -437,27 +506,79 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     validator: (v) => v == null ? 'Gender is required' : null,
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Nationality',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.flag),
+                  DropdownSearch<String>(
+                    items: (filter, infiniteScrollProps) async => Constants.nationalities,
+                    selectedItem: _nationality,
+                    decoratorProps: DropDownDecoratorProps(
+                      decoration: InputDecoration(
+                        labelText: 'Nationality',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.flag),
+                      ),
                     ),
-                    onChanged: (v) => _nationality = v,
-                    validator: (v) =>
-                    v?.isEmpty ?? true ? 'Nationality is required' : null,
+                    popupProps: PopupProps.menu(
+                      showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                        decoration: InputDecoration(
+                          hintText: 'Search nationality...',
+                          prefixIcon: Icon(Icons.search),
+                        ),
+                      ),
+                    ),
+                    onChanged: (v) => setState(() => _nationality = v),
+                    validator: (v) => v == null ? 'Nationality is required' : null,
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _phoneController,
-                    decoration: const InputDecoration(
-                      labelText: 'Phone Number',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.phone),
-                    ),
-                    keyboardType: TextInputType.phone,
-                    validator: (v) =>
-                    v?.isEmpty ?? true ? 'Phone number is required' : null,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 160,
+                        child: DropdownSearch<Map<String, String>>(
+                          items: (filter, infiniteScrollProps) async => Constants.phoneCountryCodes,
+                          selectedItem: Constants.phoneCountryCodes.firstWhere(
+                                (c) => c['code'] == _selectedCountryCode,
+                            orElse: () => Constants.phoneCountryCodes.first,
+                          ),
+                          itemAsString: (country) => '${country['name']} ${country['code']}',
+                          compareFn: (item1, item2) => item1['code'] == item2['code'],
+                          decoratorProps: DropDownDecoratorProps(
+                            decoration: InputDecoration(
+                              labelText: 'Code',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          popupProps: PopupProps.menu(
+                            showSearchBox: true,
+                            searchFieldProps: TextFieldProps(
+                              decoration: InputDecoration(
+                                hintText: 'Search country...',
+                                prefixIcon: Icon(Icons.search),
+                              ),
+                            ),
+                          ),
+                          onChanged: (country) {
+                            if (country != null) {
+                              setState(() => _selectedCountryCode = country['code']!);
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _phoneController,
+                          decoration: const InputDecoration(
+                            labelText: 'Phone Number',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.phone),
+                          ),
+                          keyboardType: TextInputType.phone,
+                          validator: (v) =>
+                          v?.isEmpty ?? true ? 'Phone number is required' : null,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -524,6 +645,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     ],
                   ),
                   const SizedBox(height: 8),
+                  //TODO: REPLACE SKILLS WITH DESCRIPTION
                   Wrap(
                     spacing: 8,
                     children: _skills

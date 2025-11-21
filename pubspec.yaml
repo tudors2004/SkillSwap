@@ -54,6 +54,7 @@ dependencies:
   easy_localization: ^3.0.8
   multilingual: ^1.1.7
   geolocator: ^14.0.2
+  dropdown_search: ^6.0.2
 
 dev_dependencies:
   flutter_test:
