@@ -13,6 +13,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingsProvider = Provider.of<SettingsProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -20,43 +21,46 @@ class SettingsPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          _buildSectionHeader('appearance'.tr()),
+          _buildSectionHeader(context, 'appearance'.tr()),
           SwitchListTile(
-            title: Text('dark_mode'.tr()),
-            value: themeProvider.themeMode == ThemeMode.dark,
+            title: Text('dark_mode'.tr(), style: theme.textTheme.titleMedium),
+            value: themeProvider.isDarkMode,
             onChanged: (value) {
               themeProvider.toggleTheme();
             },
+            activeColor: theme.colorScheme.primary,
           ),
-          _buildSectionHeader('general'.tr()),
+          _buildSectionHeader(context, 'general'.tr()),
           ListTile(
-            title: Text('language'.tr()),
-            subtitle: Text(_getLanguageName(context.locale.languageCode)),
+            title: Text('language'.tr(), style: theme.textTheme.titleMedium),
+            subtitle: Text(_getLanguageName(context.locale.languageCode), style: theme.textTheme.bodyMedium),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () => _showLanguageDialog(context),
           ),
           SwitchListTile(
-            title: Text('notifications'.tr()),
-            subtitle: Text('enable_push_notifications'.tr()),
+            title: Text('notifications'.tr(), style: theme.textTheme.titleMedium),
+            subtitle: Text('enable_push_notifications'.tr(), style: theme.textTheme.bodyMedium),
             value: settingsProvider.notificationsEnabled,
             onChanged: (value) {
               settingsProvider.setNotificationsEnabled(value);
             },
+             activeColor: theme.colorScheme.primary,
           ),
-          _buildSectionHeader('privacy'.tr()),
+          _buildSectionHeader(context, 'privacy'.tr()),
           SwitchListTile(
-            title: Text('private_account'.tr()),
-            subtitle: Text('only_approved_followers'.tr()),
+            title: Text('private_account'.tr(), style: theme.textTheme.titleMedium),
+            subtitle: Text('only_approved_followers'.tr(), style: theme.textTheme.bodyMedium),
             value: settingsProvider.isAccountPrivate,
             onChanged: (value) {
               settingsProvider.setAccountPrivacy(value);
             },
+             activeColor: theme.colorScheme.primary,
           ),
-          _buildSectionHeader('security'.tr()),
+          _buildSectionHeader(context, 'security'.tr()),
           ListTile(
             leading: const Icon(Icons.lock),
-            title: Text('change_password'.tr()),
-            subtitle: Text('update_password'.tr()),
+            title: Text('change_password'.tr(), style: theme.textTheme.titleMedium),
+            subtitle: Text('update_password'.tr(), style: theme.textTheme.bodyMedium),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
               Navigator.push(
@@ -70,15 +74,15 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
       child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 14,
+        title.toUpperCase(),
+        style: theme.textTheme.labelMedium?.copyWith(
           fontWeight: FontWeight.bold,
-          color: Colors.grey,
+          color: theme.textTheme.bodySmall?.color,
         ),
       ),
     );
@@ -99,15 +103,17 @@ class SettingsPage extends StatelessWidget {
 
   void _showLanguageDialog(BuildContext context) {
     final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('select_language'.tr()),
+        titleTextStyle: theme.textTheme.titleLarge,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<Locale>(
-              title: Text('english'.tr()),
+              title: Text('english'.tr(), style: theme.textTheme.titleMedium),
               value: const Locale('en'),
               groupValue: context.locale,
               onChanged: (value) {
@@ -115,9 +121,10 @@ class SettingsPage extends StatelessWidget {
                 settingsProvider.setLanguage(value.languageCode);
                 Navigator.pop(context);
               },
+               activeColor: theme.colorScheme.primary,
             ),
             RadioListTile<Locale>(
-              title: Text('french'.tr()),
+              title: Text('french'.tr(), style: theme.textTheme.titleMedium),
               value: const Locale('fr'),
               groupValue: context.locale,
               onChanged: (value) {
@@ -125,9 +132,10 @@ class SettingsPage extends StatelessWidget {
                 settingsProvider.setLanguage(value.languageCode);
                 Navigator.pop(context);
               },
+               activeColor: theme.colorScheme.primary,
             ),
             RadioListTile<Locale>(
-              title: Text('german'.tr()),
+              title: Text('german'.tr(), style: theme.textTheme.titleMedium),
               value: const Locale('de'),
               groupValue: context.locale,
               onChanged: (value) {
@@ -135,6 +143,7 @@ class SettingsPage extends StatelessWidget {
                 settingsProvider.setLanguage(value.languageCode);
                 Navigator.pop(context);
               },
+               activeColor: theme.colorScheme.primary,
             ),
           ],
         ),

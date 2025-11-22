@@ -7,7 +7,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:skillswap/data/constants.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 
-
 class ProfileSetupPage extends StatefulWidget {
   const ProfileSetupPage({super.key});
 
@@ -60,11 +59,13 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
           final phoneNumber = profile['phoneNumber'] as String?;
           if (phoneNumber != null) {
             final code = Constants.phoneCountryCodes.firstWhere(
-                  (c) => phoneNumber.startsWith(c['code']!),
+              (c) => phoneNumber.startsWith(c['code']!),
               orElse: () => {'code': '+1'},
             );
             _selectedCountryCode = code['code']!;
-            _phoneController.text = phoneNumber.substring(_selectedCountryCode.length);
+            _phoneController.text = phoneNumber.substring(
+              _selectedCountryCode.length,
+            );
           }
 
           _profilePicturePath = profile['profilePicturePath'] as String?;
@@ -104,7 +105,6 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       print('Error loading existing profile: $e');
     }
   }
-
 
   @override
   void dispose() {
@@ -160,13 +160,12 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error picking image: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
       }
     }
   }
-
 
   Future<bool> _requestCameraPermission() async {
     final cameraPermission = await showDialog<bool>(
@@ -215,7 +214,8 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       builder: (context) => AlertDialog(
         title: const Text('Location Permission'),
         content: const Text(
-            'Do you allow SkillSwap to use your location while using the app?'),
+          'Do you allow SkillSwap to use your location while using the app?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -239,7 +239,10 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
               SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
               ),
               SizedBox(width: 16),
               Text('Getting your location...'),
@@ -257,7 +260,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Location services are disabled. Please enable them in settings.'),
+              content: Text(
+                'Location services are disabled. Please enable them in settings.',
+              ),
               duration: Duration(seconds: 3),
             ),
           );
@@ -287,7 +292,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Location permission permanently denied. Please enable in settings.'),
+              content: Text(
+                'Location permission permanently denied. Please enable in settings.',
+              ),
               action: SnackBarAction(
                 label: 'Settings',
                 onPressed: Geolocator.openLocationSettings,
@@ -384,9 +391,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error saving profile: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error saving profile: $e')));
         }
       }
     }
@@ -417,6 +424,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile Setup'),
@@ -425,6 +433,31 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       body: Form(
         key: _formKey,
         child: Stepper(
+          controlsBuilder: (BuildContext context, ControlsDetails details) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  if (_currentStep > 0)
+                    TextButton(
+                      onPressed: details.onStepCancel,
+                      child: const Text('Back'),
+                    ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.primaryColor,
+                      foregroundColor: theme.colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                    ),
+                    onPressed: details.onStepContinue,
+                    child: Text(_currentStep == 2 ? 'Submit' : 'Continue'),
+                  ),
+                ],
+              ),
+            );
+          },
           currentStep: _currentStep,
           onStepContinue: () {
             if (_currentStep < 2) {
@@ -447,12 +480,18 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   const SizedBox(height: 16),
                   _buildProfilePicturePreview(),
                   const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: _pickImage,
-                    icon: const Icon(Icons.camera_alt),
-                    label: Text(_profilePicturePath == null
-                        ? 'Add Profile Picture'
-                        : 'Change Picture'),
+                  SizedBox(
+                    width: 180,
+                    height: 50,
+                    child: ElevatedButton.icon(
+                      onPressed: _pickImage,
+                      icon: const Icon(Icons.camera_alt),
+                      label: Text(
+                        _profilePicturePath == null
+                            ? 'Add Profile Picture'
+                            : 'Change Picture',
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 24),
                   TextFormField(
@@ -462,7 +501,8 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.person),
                     ),
-                    validator: (v) => v?.isEmpty ?? true ? 'Name is required' : null,
+                    validator: (v) =>
+                        v?.isEmpty ?? true ? 'Name is required' : null,
                   ),
                   const SizedBox(height: 16),
                   InkWell(
@@ -504,7 +544,8 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   ),
                   const SizedBox(height: 16),
                   DropdownSearch<String>(
-                    items: (filter, infiniteScrollProps) async => Constants.nationalities,
+                    items: (filter, infiniteScrollProps) async =>
+                        Constants.nationalities,
                     selectedItem: _nationality,
                     decoratorProps: DropDownDecoratorProps(
                       decoration: InputDecoration(
@@ -523,7 +564,8 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       ),
                     ),
                     onChanged: (v) => setState(() => _nationality = v),
-                    validator: (v) => v == null ? 'Nationality is required' : null,
+                    validator: (v) =>
+                        v == null ? 'Nationality is required' : null,
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -532,13 +574,16 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       SizedBox(
                         width: 160,
                         child: DropdownSearch<Map<String, String>>(
-                          items: (filter, infiniteScrollProps) async => Constants.phoneCountryCodes,
+                          items: (filter, infiniteScrollProps) async =>
+                              Constants.phoneCountryCodes,
                           selectedItem: Constants.phoneCountryCodes.firstWhere(
-                                (c) => c['code'] == _selectedCountryCode,
+                            (c) => c['code'] == _selectedCountryCode,
                             orElse: () => Constants.phoneCountryCodes.first,
                           ),
-                          itemAsString: (country) => '${country['name']} ${country['code']}',
-                          compareFn: (item1, item2) => item1['code'] == item2['code'],
+                          itemAsString: (country) =>
+                              '${country['name']} ${country['code']}',
+                          compareFn: (item1, item2) =>
+                              item1['code'] == item2['code'],
                           decoratorProps: DropDownDecoratorProps(
                             decoration: InputDecoration(
                               labelText: 'Code',
@@ -556,7 +601,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                           ),
                           onChanged: (country) {
                             if (country != null) {
-                              setState(() => _selectedCountryCode = country['code']!);
+                              setState(
+                                () => _selectedCountryCode = country['code']!,
+                              );
                             }
                           },
                         ),
@@ -571,8 +618,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                             prefixIcon: Icon(Icons.phone),
                           ),
                           keyboardType: TextInputType.phone,
-                          validator: (v) =>
-                          v?.isEmpty ?? true ? 'Phone number is required' : null,
+                          validator: (v) => v?.isEmpty ?? true
+                              ? 'Phone number is required'
+                              : null,
                         ),
                       ),
                     ],
@@ -595,14 +643,17 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   ElevatedButton.icon(
                     onPressed: _requestLocation,
                     icon: const Icon(Icons.location_on),
-                    label: Text(_location == null
-                        ? 'Enable Location'
-                        : 'Location Enabled ✓'),
+                    label: Text(
+                      _location == null
+                          ? 'Enable Location'
+                          : 'Location Enabled ✓',
+                    ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                      _location != null ? Colors.green : null,
+                      backgroundColor: _location != null ? Colors.green : null,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -627,7 +678,8 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                         child: TextField(
                           controller: _skillController,
                           decoration: const InputDecoration(
-                            hintText: 'Let your partner know something about you',
+                            hintText:
+                                'Let your partner know something about you',
                             border: OutlineInputBorder(),
                           ),
                         ),
@@ -658,7 +710,8 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                                 ? 'No description added'
                                 : _description!,
                             style: TextStyle(
-                              color: _description == null || _description!.isEmpty
+                              color:
+                                  _description == null || _description!.isEmpty
                                   ? Colors.grey
                                   : Colors.purple,
                             ),
@@ -667,7 +720,8 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                         if (_description != null && _description!.isNotEmpty)
                           IconButton(
                             icon: const Icon(Icons.delete),
-                            onPressed: () => setState(() => _description = null),
+                            onPressed: () =>
+                                setState(() => _description = null),
                             iconSize: 20,
                           ),
                       ],

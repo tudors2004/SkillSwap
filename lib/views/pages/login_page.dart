@@ -23,7 +23,6 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     _signUpRecognizer = TapGestureRecognizer()
       ..onTap = () {
-        // Navigate to the RegisterPage
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const RegisterPage()),
@@ -121,8 +120,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F4ED),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -130,71 +129,47 @@ class _LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-            // SkillSwap Title
-            const Text(
+            Text(
               'SkillSwap',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 36,
+              style: theme.textTheme.headlineLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF9B3A7B), // Color from the image
+                color: theme.primaryColor,
               ),
             ),
             const SizedBox(height: 80),
 
-            // Create an account / Enter your email and password
-            const Text(
+            Text(
               'Log in to your account',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22,
+              style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Enter your email and password\nto log in to your account',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.textTheme.bodySmall?.color,
               ),
             ),
             const SizedBox(height: 40),
 
-            // Email Field
             TextField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'email@domain.com',
-                fillColor: Colors.white,
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 16.0, horizontal: 16.0),
               ),
             ),
             const SizedBox(height: 16),
 
-            // Password Field
             TextField(
               controller: _passwordController,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'password',
-                fillColor: Colors.white,
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 16.0, horizontal: 16.0),
               ),
             ),
             const SizedBox(height: 8),
@@ -202,42 +177,22 @@ class _LoginPageState extends State<LoginPage> {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: _handleForgotPassword,
-                child: const Text(
-                  'Forgot Password?',
-                  style: TextStyle(
-                    color: Color(0xFF9B3A7B),
-                    fontSize: 14,
-                  ),
-                ),
+                child: const Text('Forgot Password?'),
               ),
             ),
             const SizedBox(height: 16),
 
             ElevatedButton(
               onPressed: _isLoading ? null : _handleLogin,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-              ),
               child: _isLoading
                   ? const SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
-                  color: Colors.white,
                   strokeWidth: 2,
                 ),
               )
-                  : const Text(
-                'Log in',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
-              ),
+                  : const Text('Log in', style: TextStyle(fontSize: 18)),
             ),
             const SizedBox(height: 16),
             OutlinedButton.icon(
@@ -255,12 +210,14 @@ class _LoginPageState extends State<LoginPage> {
             Text.rich(
               TextSpan(
                 text: "You don't have an account? ",
-                style: const TextStyle(color: Colors.black54, fontSize: 16),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.textTheme.bodySmall?.color,
+                ),
                 children: <TextSpan>[
                   TextSpan(
                     text: 'Sign up',
-                    style: const TextStyle(
-                      color: Color(0xFF9B3A7B),
+                    style: TextStyle(
+                      color: theme.primaryColor,
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.underline,
                     ),

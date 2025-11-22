@@ -3,6 +3,7 @@ import 'package:skillswap/services/auth_service.dart';
 import 'package:skillswap/views/pages/login_page.dart';
 import 'package:skillswap/views/pages/settings_page.dart';
 import 'package:skillswap/views/pages/profile_page.dart';
+import 'package:skillswap/views/pages/skills_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     const HomeContent(),
     const ExplorePage(),
-    const MySkillsPage(),
+    const SkillsPage(),
     const ProfilePage(),
   ];
 
@@ -72,7 +73,8 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const CircleAvatar(
                     radius: 30,
-                    child: Icon(Icons.person, size: 40),
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.person, size: 40, color: Colors.black,),
                   ),
                   const SizedBox(height: 10),
                   Text(
@@ -116,7 +118,6 @@ class _HomePageState extends State<HomePage> {
       ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
@@ -151,39 +152,31 @@ class HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Welcome to SkillSwap!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               'Connect with others and exchange skills',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(color: theme.textTheme.bodySmall?.color),
             ),
             const SizedBox(height: 24),
             _buildQuickActions(context),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Trending Skills',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            _buildTrendingSkills(),
+            _buildTrendingSkills(context),
           ],
         ),
       ),
@@ -195,18 +188,20 @@ class HomeContent extends StatelessWidget {
       children: [
         Expanded(
           child: _buildActionCard(
+            context,
             icon: Icons.add_circle_outline,
             title: 'Add Skill',
-            color: Colors.blue,
+            color: Theme.of(context).colorScheme.primary,
             onTap: () {},
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _buildActionCard(
+            context,
             icon: Icons.search,
             title: 'Find Skills',
-            color: Colors.green,
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
             onTap: () {},
           ),
         ),
@@ -214,16 +209,16 @@ class HomeContent extends StatelessWidget {
     );
   }
 
-  Widget _buildActionCard({
+  Widget _buildActionCard(BuildContext context, {
     required IconData icon,
     required String title,
     required Color color,
     required VoidCallback onTap,
   }) {
     return Card(
-      elevation: 2,
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(12.0),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -232,10 +227,7 @@ class HomeContent extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -244,7 +236,7 @@ class HomeContent extends StatelessWidget {
     );
   }
 
-  Widget _buildTrendingSkills() {
+  Widget _buildTrendingSkills(BuildContext context) {
     final skills = [
       'Programming',
       'Design',
@@ -268,14 +260,12 @@ class HomeContent extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.star, size: 40, color: Colors.amber),
+                  Icon(Icons.star, size: 40, color: Theme.of(context).colorScheme.primary.withOpacity(0.7)),
                   const SizedBox(height: 8),
                   Text(
                     skills[index],
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -294,17 +284,6 @@ class ExplorePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Text('Explore Page - Coming Soon'),
-    );
-  }
-}
-
-class MySkillsPage extends StatelessWidget {
-  const MySkillsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('My Skills Page - Coming Soon'),
     );
   }
 }
