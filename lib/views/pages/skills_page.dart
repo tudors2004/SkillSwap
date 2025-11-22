@@ -44,9 +44,7 @@ class _SkillsPageState extends State<SkillsPage> {
             _initializeControllersFromData(data);
             _isEditing = false;
           } else {
-            _addNewSkillToOffer(isFirstTime: true);
-            _addNewSkillToLearn(isFirstTime: true);
-            _isEditing = true;
+            _isEditing = false; 
           }
           _isLoading = false;
         });
@@ -175,7 +173,18 @@ class _SkillsPageState extends State<SkillsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isInitialSetup = !_isLoading && !_isEditing && _skillsData == null;
+
     return Scaffold(
+      appBar: isInitialSetup
+          ? null
+          : AppBar(
+              title: Text(_isEditing ? 'Edit Skills' : 'My Skills'),
+              centerTitle: true,
+              automaticallyImplyLeading: false,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+            ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _isEditing
@@ -358,15 +367,24 @@ class _SkillsPageState extends State<SkillsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Add your skills to get started!', style: const TextStyle(fontSize: 18)),
+            const Text('You don\'t have any skills yet', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 setState(() {
                   _isEditing = true;
+                  if (_skillsToOfferControllers.isEmpty) {
+                    _skillsToOfferControllers.add(_SkillInputControllers());
+                  }
+                  if (_skillsToLearnControllers.isEmpty) {
+                    _skillsToLearnControllers.add(_SkillInputControllers());
+                  }
                 });
               },
-              child: const Text('Add Skills'),
+              child: const Text('Add Your Skills'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+            ),
             ),
           ],
         ),
