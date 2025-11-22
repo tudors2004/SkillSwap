@@ -106,8 +106,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F4ED), // Background color
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -116,34 +116,30 @@ class _RegisterPageState extends State<RegisterPage> {
           children: [
             SizedBox(height: MediaQuery.of(context).size.height * 0.1),
             // SkillSwap Title
-            const Text(
+            Text(
               'SkillSwap',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 36,
+              style: theme.textTheme.headlineLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF9B3A7B), // Color from the image
+                color: theme.primaryColor,
               ),
             ),
             const SizedBox(height: 80),
 
             // Create an account
-            const Text(
+            Text(
               'Create an account',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22,
+              style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Enter your email and password\nto sign up for this app',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.textTheme.bodySmall?.color,
               ),
             ),
             const SizedBox(height: 40),
@@ -152,16 +148,8 @@ class _RegisterPageState extends State<RegisterPage> {
             TextField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'email@domain.com',
-                fillColor: Colors.white,
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 16.0, horizontal: 16.0),
               ),
             ),
             const SizedBox(height: 16),
@@ -170,16 +158,8 @@ class _RegisterPageState extends State<RegisterPage> {
             TextField(
               controller: _passwordController,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'password',
-                fillColor: Colors.white,
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 16.0, horizontal: 16.0),
               ),
             ),
             const SizedBox(height: 16),
@@ -188,16 +168,8 @@ class _RegisterPageState extends State<RegisterPage> {
             TextField(
               controller: _confirmPasswordController,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'confirm password',
-                fillColor: Colors.white,
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 16.0, horizontal: 16.0),
               ),
             ),
             const SizedBox(height: 16),
@@ -205,19 +177,11 @@ class _RegisterPageState extends State<RegisterPage> {
             // Continue Button
             ElevatedButton(
               onPressed: _isLoading ? null : _handleRegister,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-              ),
               child: _isLoading
                   ? const SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
-                  color: Colors.white,
                   strokeWidth: 2,
                 ),
               )
@@ -225,7 +189,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 'Sign Up',
                 style: TextStyle(
                   fontSize: 18,
-                  color: Colors.white,
                 ),
               ),
             ),
@@ -247,12 +210,14 @@ class _RegisterPageState extends State<RegisterPage> {
             Text.rich(
               TextSpan(
                 text: 'Already have an account? ',
-                style: const TextStyle(color: Colors.black54, fontSize: 16),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.textTheme.bodySmall?.color,
+                ),
                 children: <TextSpan>[
                   TextSpan(
                     text: 'Log in',
-                    style: const TextStyle(
-                      color: Color(0xFF9B3A7B),
+                    style: TextStyle(
+                      color: theme.primaryColor,
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.underline,
                     ),

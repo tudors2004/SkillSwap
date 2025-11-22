@@ -101,11 +101,13 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Widget _buildProfilePicture(String? base64String) {
+  Widget _buildProfilePicture(BuildContext context, String? base64String) {
+    final theme = Theme.of(context);
     if (base64String == null || base64String.isEmpty) {
-      return const CircleAvatar(
+      return CircleAvatar(
         radius: 60,
-        child: Icon(Icons.person, size: 60),
+        backgroundColor: theme.colorScheme.surface,
+        child: Icon(Icons.person, size: 60, color: theme.colorScheme.onSurface.withOpacity(0.5)),
       );
     }
 
@@ -116,15 +118,18 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundImage: MemoryImage(Uint8List.fromList(bytes)),
       );
     } catch (e) {
-      return const CircleAvatar(
+      return CircleAvatar(
         radius: 60,
-        child: Icon(Icons.person, size: 60),
+        backgroundColor: theme.colorScheme.surface,
+        child: Icon(Icons.person, size: 60, color: theme.colorScheme.onSurface.withOpacity(0.5)),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -150,23 +155,23 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         children: [
           const SizedBox(height: 20),
-          _buildProfilePicture(_profileData!['profilePictureBase64']),
+          _buildProfilePicture(context, _profileData!['profilePictureBase64']),
           const SizedBox(height: 16),
           Text(
             _profileData!['name'] ?? 'No Name',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             _profileData!['email'] ?? '',
-            style: const TextStyle(color: Colors.grey),
+            style: theme.textTheme.titleMedium?.copyWith(color: theme.textTheme.bodySmall?.color),
           ),
           const SizedBox(height: 24),
-          _buildInfoCard(),
+          _buildInfoCard(context),
           const SizedBox(height: 16),
-          _buildSkillsCard(),
+          _buildSkillsCard(context),
           const SizedBox(height: 16),
-          _buildPreferencesCard(),
+          _buildPreferencesCard(context),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: _navigateToProfileSetup,
@@ -181,31 +186,33 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildInfoCard() {
+  Widget _buildInfoCard(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Personal Information',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Divider(),
-            _buildInfoRow(Icons.person, 'Gender', _profileData!['gender']),
-            _buildInfoRow(Icons.flag, 'Nationality', _profileData!['nationality']),
-            _buildInfoRow(Icons.phone, 'Phone', _profileData!['phoneNumber']),
-            _buildInfoRow(Icons.description, 'Description', _profileData!['description']),
+            _buildInfoRow(context, Icons.person, 'Gender', _profileData!['gender']),
+            _buildInfoRow(context, Icons.flag, 'Nationality', _profileData!['nationality']),
+            _buildInfoRow(context, Icons.phone, 'Phone', _profileData!['phoneNumber']),
+            _buildInfoRow(context, Icons.description, 'Description', _profileData!['description']),
             if (_profileData!['location'] != null)
-              _buildInfoRow(Icons.location_on, 'Location', 'Enabled'),
+              _buildInfoRow(context, Icons.location_on, 'Location', 'Enabled'),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSkillsCard() {
+  Widget _buildSkillsCard(BuildContext context) {
+    final theme = Theme.of(context);
     final skills = (_profileData!['skills'] as List?)?.cast<String>() ?? [];
 
     if (skills.isEmpty) {
@@ -218,9 +225,9 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Skills',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Divider(),
             Wrap(
@@ -229,7 +236,8 @@ class _ProfilePageState extends State<ProfilePage> {
               children: skills
                   .map((skill) => Chip(
                 label: Text(skill),
-                backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                labelStyle: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.w500),
               ))
                   .toList(),
             ),
@@ -239,7 +247,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildPreferencesCard() {
+  Widget _buildPreferencesCard(BuildContext context) {
+    final theme = Theme.of(context);
     final preferences = _profileData!['preferences'] as Map<String, dynamic>?;
 
     if (preferences == null || preferences.isEmpty) {
@@ -252,25 +261,27 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Partner Preferences',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Divider(),
             if (preferences['gender'] != null)
-              _buildInfoRow(Icons.wc, 'Gender', preferences['gender']),
+              _buildInfoRow(context, Icons.wc, 'Gender', preferences['gender']),
             if (preferences['nationality'] != null)
-              _buildInfoRow(Icons.flag, 'Nationality', preferences['nationality']),
+              _buildInfoRow(context, Icons.flag, 'Nationality', preferences['nationality']),
             if (preferences['religion'] != null)
-              _buildInfoRow(Icons.church, 'Religion', preferences['religion']),
+              _buildInfoRow(context, Icons.church, 'Religion', preferences['religion']),
             if (preferences['ageRange'] != null)
               _buildInfoRow(
+                context,
                 Icons.calendar_today,
                 'Age Range',
                 '${preferences['ageRange']['min']?.round()} - ${preferences['ageRange']['max']?.round()} years',
               ),
             if (preferences['locationRange'] != null)
               _buildInfoRow(
+                context,
                 Icons.location_searching,
                 'Distance',
                 '${preferences['locationRange']?.round()} km',
@@ -281,21 +292,22 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, dynamic value) {
+  Widget _buildInfoRow(BuildContext context, IconData icon, String label, dynamic value) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey),
+          Icon(icon, size: 20, color: theme.textTheme.bodySmall?.color),
           const SizedBox(width: 12),
           Text(
             '$label: ',
-            style: const TextStyle(fontWeight: FontWeight.w500),
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
           ),
           Expanded(
             child: Text(
               value?.toString() ?? 'N/A',
-              style: const TextStyle(color: Colors.grey),
+              style: theme.textTheme.bodyMedium,
             ),
           ),
         ],
