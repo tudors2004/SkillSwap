@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:skillswap/providers/theme_provider.dart';
 import 'package:skillswap/providers/settings_provider.dart';
 import 'package:skillswap/views/pages/change_password_page.dart';
+import 'package:skillswap/services/settings_service.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -97,6 +98,7 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _showLanguageDialog(BuildContext context) {
+    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -110,6 +112,7 @@ class SettingsPage extends StatelessWidget {
               groupValue: context.locale,
               onChanged: (value) {
                 context.setLocale(value!);
+                settingsProvider.setLanguage(value.languageCode);
                 Navigator.pop(context);
               },
             ),
@@ -119,6 +122,7 @@ class SettingsPage extends StatelessWidget {
               groupValue: context.locale,
               onChanged: (value) {
                 context.setLocale(value!);
+                settingsProvider.setLanguage(value.languageCode);
                 Navigator.pop(context);
               },
             ),
@@ -128,6 +132,7 @@ class SettingsPage extends StatelessWidget {
               groupValue: context.locale,
               onChanged: (value) {
                 context.setLocale(value!);
+                settingsProvider.setLanguage(value.languageCode);
                 Navigator.pop(context);
               },
             ),

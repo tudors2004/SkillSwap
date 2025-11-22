@@ -29,7 +29,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
   String? _nationality;
   String? _profilePicturePath;
   String? _location;
-  final List<String> _skills = [];           //TODO: REPLACE SKILLS WITH DESCRIPTION
+  String? _description;
   final _skillController = TextEditingController();
 
   // Preferences
@@ -77,11 +77,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
               _location = '${locationData.latitude},${locationData.longitude}';
             }
           }
-          //TODO: REPLACE SKILLS WITH DESCRIPTION
-          final skills = profile['skills'] as List?;
-          if (skills != null) {
-            _skills.clear();
-            _skills.addAll(skills.cast<String>());
+          final description = profile['description'] as String?;
+          if (description != null) {
+            _description = description;
           }
 
           final prefs = profile['preferences'] as Map<String, dynamic>?;
@@ -341,11 +339,10 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
     }
   }
 
-  //TODO: REPLACE SKILLS WITH DESCRIPTION
-  void _addSkill() {
+  void _saveDescription() {
     if (_skillController.text.isNotEmpty) {
       setState(() {
-        _skills.add(_skillController.text);
+        _description = _skillController.text;
         _skillController.clear();
       });
     }
@@ -370,7 +367,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
           phoneNumber: fullPhoneNumber,
           profilePicturePath: _profilePicturePath,
           location: _location,
-          skills: _skills,            //TODO: REPLACE SKILLS WITH DESCRIPTION
+          description: _description,
           preferences: {
             'gender': _preferredGender,
             'nationality': _preferredNationality,
@@ -637,7 +634,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       ),
                       const SizedBox(width: 8),
                       IconButton(
-                        onPressed: _addSkill,
+                        onPressed: _saveDescription,
                         icon: const Icon(Icons.add_circle),
                         iconSize: 32,
                         color: Theme.of(context).primaryColor,
@@ -645,16 +642,36 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  //TODO: REPLACE SKILLS WITH DESCRIPTION
-                  Wrap(
-                    spacing: 8,
-                    children: _skills
-                        .map((s) => Chip(
-                      label: Text(s),
-                      onDeleted: () =>
-                          setState(() => _skills.remove(s)),
-                    ))
-                        .toList(),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _description == null || _description!.isEmpty
+                                ? 'No description added'
+                                : _description!,
+                            style: TextStyle(
+                              color: _description == null || _description!.isEmpty
+                                  ? Colors.grey
+                                  : Colors.purple,
+                            ),
+                          ),
+                        ),
+                        if (_description != null && _description!.isNotEmpty)
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () => setState(() => _description = null),
+                            iconSize: 20,
+                          ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 24),
                   const Text(

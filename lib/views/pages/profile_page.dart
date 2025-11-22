@@ -196,6 +196,7 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildInfoRow(Icons.person, 'Gender', _profileData!['gender']),
             _buildInfoRow(Icons.flag, 'Nationality', _profileData!['nationality']),
             _buildInfoRow(Icons.phone, 'Phone', _profileData!['phoneNumber']),
+            _buildInfoRow(Icons.description, 'Description', _profileData!['description']),
             if (_profileData!['location'] != null)
               _buildInfoRow(Icons.location_on, 'Location', 'Enabled'),
           ],

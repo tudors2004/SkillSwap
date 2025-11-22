@@ -86,10 +86,10 @@ class ProfileService {
     required String phoneNumber,
     String? profilePicturePath,
     String? location,
-    List<String>? skills,
+    String? description,
     Map<String, dynamic>? preferences,
   }) async {
-    final userId = _auth.currentUser?.uid;
+    final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) throw Exception('User not authenticated');
 
     // Convert profile picture to base64 if provided
@@ -98,7 +98,6 @@ class ProfileService {
       profilePictureBase64 = await convertImageToBase64(profilePicturePath);
     }
 
-    // Parse location if provided
     GeoPoint? geoPoint;
     if (location != null) {
       final coords = location.split(',');
@@ -121,7 +120,7 @@ class ProfileService {
       'phoneNumber': phoneNumber,
       'profilePictureBase64': profilePictureBase64,
       'location': geoPoint,
-      'skills': skills ?? [],
+      'description': description,
       'preferences': preferences ?? {},
       'profileSetupCompleted': true,
       'createdAt': FieldValue.serverTimestamp(),
