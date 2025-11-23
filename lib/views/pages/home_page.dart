@@ -4,6 +4,7 @@ import 'package:skillswap/views/pages/login_page.dart';
 import 'package:skillswap/views/pages/settings_page.dart';
 import 'package:skillswap/views/pages/profile_page.dart';
 import 'package:skillswap/views/pages/skills_page.dart';
+import 'package:skillswap/views/pages/explore_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -184,25 +185,32 @@ class HomeContent extends StatelessWidget {
   }
 
   Widget _buildQuickActions(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
     return Row(
       children: [
         Expanded(
           child: _buildActionCard(
             context,
-            icon: Icons.add_circle_outline,
-            title: 'Add Skill',
-            color: Theme.of(context).colorScheme.primary,
-            onTap: () {},
+            icon: Icons.school_outlined,
+            title: 'Add skill to teach',
+            color: primary,
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SkillsPage()),
+              );
+            },
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _buildActionCard(
             context,
-            icon: Icons.search,
-            title: 'Find Skills',
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
-            onTap: () {},
+            icon: Icons.lightbulb_outline,
+            title: 'Add learning goal',
+            color: primary.withOpacity(0.85),
+            onTap: () {
+              //TODO: Navigate to "Add Skill to Learn"
+            },
           ),
         ),
       ],
@@ -273,17 +281,6 @@ class HomeContent extends StatelessWidget {
           );
         },
       ),
-    );
-  }
-}
-
-class ExplorePage extends StatelessWidget {
-  const ExplorePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Explore Page - Coming Soon'),
     );
   }
 }
