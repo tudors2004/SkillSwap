@@ -5,6 +5,8 @@ import 'package:skillswap/views/pages/settings_page.dart';
 import 'package:skillswap/views/pages/profile_page.dart';
 import 'package:skillswap/views/pages/skills_page.dart';
 import 'package:skillswap/views/pages/explore_page.dart';
+import 'package:skillswap/views/pages/home_page.dart';
+import 'package:skillswap/views/pages/wallet.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,6 +22,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     const HomeContent(),
     const ExplorePage(),
+    const WalletPage(),
     const SkillsPage(),
     const ProfilePage(),
   ];
@@ -132,6 +135,10 @@ class _HomePageState extends State<HomePage> {
             activeIcon: Icon(Icons.explore),
             label: 'Explore',
           ),
+          BottomNavigationBarItem(icon: 
+            Icon(Icons.account_balance_wallet_outlined),
+            activeIcon: Icon(Icons.account_balance_wallet), 
+            label: 'Wallet'),
           BottomNavigationBarItem(
             icon: Icon(Icons.library_books_outlined),
             activeIcon: Icon(Icons.library_books),
