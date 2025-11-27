@@ -1,19 +1,115 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class WalletPage extends StatelessWidget {
+class WalletPage extends StatefulWidget {
   const WalletPage({super.key});
 
   @override
+  State<WalletPage> createState() => _WalletPageState();
+}
+
+class _WalletPageState extends State<WalletPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Data variables
+  int _timeBalance = 0;
+  double _reputation = 0.0;
+  Map<String, dynamic>? _nextSession;
+  List<Map<String, dynamic>> _topMatches = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWalletData();
+  }
+
+  Future<void> _loadWalletData() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      //  Load user's time balance and reputation
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      
+      if (userDoc.exists) {
+        final userData = userDoc.data()!;
+        setState(() {
+          _timeBalance = userData['timeBalance'] ?? 0;
+          _reputation = (userData['reputation'] ?? 0.0).toDouble();
+        });
+      }
+
+      //Load next upcoming session
+      final sessionsQuery = await _firestore
+          .collection('sessions')
+          .where('userId', isEqualTo: userId)
+          .where('status', isEqualTo: 'upcoming')
+          .orderBy('scheduledDate')
+          .limit(1)
+          .get();
+
+      if (sessionsQuery.docs.isNotEmpty) {
+        setState(() {
+          _nextSession = sessionsQuery.docs.first.data();
+        });
+      }
+
+      //  Load top matches
+      final matchesQuery = await _firestore
+          .collection('matches')
+          .where('userId', isEqualTo: userId)
+          .orderBy('matchScore', descending: true)
+          .limit(5)
+          .get();
+
+      setState(() {
+        _topMatches = matchesQuery.docs
+            .map((doc) => doc.data())
+            .toList();
+      });
+
+    } catch (e) {
+      print('Error loading wallet data: $e');
+      
+      // Show error to user
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading data: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F4ED),
-      body: SingleChildScrollView(
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadWalletData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Time Balance Card
+              // Time Balance Card 
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -22,9 +118,9 @@ class WalletPage extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    const Text(
-                      'Time Balance: 10 Hours',
-                      style: TextStyle(
+                    Text(
+                      'Time Balance: $_timeBalance Hours',
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
@@ -41,8 +137,8 @@ class WalletPage extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Reputation: 4.7/5',
-                          style: TextStyle(
+                          'Reputation: ${_reputation.toStringAsFixed(1)}/5',
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black54,
                           ),
@@ -54,78 +150,137 @@ class WalletPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Next Session Section
+              // Next Session Section (Dynamic)
               const Text(
                 'Next Session',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  
                 ),
               ),
               const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE8C4D8),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Spanish lessons',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+              
+              if (_nextSession != null)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8C4D8),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _nextSession!['skillName'] ?? 'Session',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'with John Smith, Wednesday 12:00',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
+                      const SizedBox(height: 4),
+                      Text(
+                        'with ${_nextSession!['partnerName'] ?? 'Partner'}, ${_formatTimestamp(_nextSession!['scheduledDate'])}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black54,
+                        ),
                       ),
+                    ],
+                  ),
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8C4D8),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'No upcoming sessions',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              
               const SizedBox(height: 24),
 
-              // Top Matches Section
+              // Top Matches Section (Dynamic)
               const Text(
                 'Top Matches',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  
                 ),
               ),
               const SizedBox(height: 12),
 
-              // Match Card 1
-              _buildMatchCard(
-                name: 'Jane Smith',
-                description: 'French speaker eager to learn Java!',
-                skills: ['French', 'Cooking', 'Spanish'],
-                avatarColor: Colors.blue,
-              ),
-              const SizedBox(height: 12),
-
-              // Match Card 2
-              _buildMatchCard(
-                name: 'Joe Doe',
-                description: 'UX Designer hoping to learn to cook!',
-                skills: ['Design', 'Photography', 'Writing'],
-                avatarColor: Colors.orange,
-              ),
+              if (_topMatches.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8C4D8),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'No matches found yet',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
+                    ),
+                  ),
+                )
+              else
+                ..._topMatches.map((match) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildMatchCard(
+                      name: match['name'] ?? 'Unknown',
+                      description: match['description'] ?? '',
+                      skills: List<String>.from(match['skills'] ?? []),
+                      avatarColor: _getColorFromString(match['avatarColor'] ?? 'blue'),
+                    ),
+                  );
+                }).toList(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  String _formatTimestamp(dynamic timestamp) {
+  if (timestamp == null) return 'TBD';
+  // If it's a Firestore Timestamp, convert to Date
+  if (timestamp is Timestamp) {
+    DateTime date = timestamp.toDate();
+    return "${date.day}/${date.month}/${date.year}"; 
+  }
+  return timestamp.toString();
+  }
+
+  Color _getColorFromString(String colorName) {
+    switch (colorName.toLowerCase()) {
+      case 'blue':
+        return Colors.blue;
+      case 'orange':
+        return Colors.orange;
+      case 'green':
+        return Colors.green;
+      case 'purple':
+        return Colors.purple;
+      case 'red':
+        return Colors.red;
+      case 'teal':
+        return Colors.teal;
+      default:
+        return Colors.grey;
+    }
   }
 
   Widget _buildMatchCard({
@@ -157,7 +312,7 @@ class WalletPage extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     color: Colors.black54,
                   ),
