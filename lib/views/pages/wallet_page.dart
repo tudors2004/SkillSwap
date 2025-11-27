@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:skillswap/services/match_service.dart';
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key});
@@ -12,7 +13,7 @@ class WalletPage extends StatefulWidget {
 class _WalletPageState extends State<WalletPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
+  final MatchService _matchService = MatchService();
   // Data variables
   int _timeBalance = 0;
   double _reputation = 0.0;
@@ -36,18 +37,21 @@ class _WalletPageState extends State<WalletPage> {
         return;
       }
 
-      //  Load user's time balance and reputation
       final userDoc = await _firestore.collection('users').doc(userId).get();
-      
+      Map<String, dynamic> userPreferences = {};
+
       if (userDoc.exists) {
         final userData = userDoc.data()!;
         setState(() {
           _timeBalance = userData['timeBalance'] ?? 0;
           _reputation = (userData['reputation'] ?? 0.0).toDouble();
         });
+        userPreferences = userData['preferences'] ?? {};
       }
 
-      //Load next upcoming session
+  
+      final smartMatches = await _matchService.getSmartMatches(userId, userPreferences);
+
       final sessionsQuery = await _firestore
           .collection('sessions')
           .where('userId', isEqualTo: userId)
@@ -57,36 +61,22 @@ class _WalletPageState extends State<WalletPage> {
           .get();
 
       if (sessionsQuery.docs.isNotEmpty) {
+        _nextSession = sessionsQuery.docs.first.data();
+      }
+
+      if (mounted) {
         setState(() {
-          _nextSession = sessionsQuery.docs.first.data();
+          _topMatches = smartMatches; 
+          _isLoading = false;
         });
       }
 
-      //  Load top matches
-      final matchesQuery = await _firestore
-          .collection('matches')
-          .where('userId', isEqualTo: userId)
-          .orderBy('matchScore', descending: true)
-          .limit(5)
-          .get();
-
-      setState(() {
-        _topMatches = matchesQuery.docs
-            .map((doc) => doc.data())
-            .toList();
-      });
-
     } catch (e) {
       print('Error loading wallet data: $e');
-      
-      // Show error to user
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error loading data: $e')),
         );
-      }
-    } finally {
-      if (mounted) {
         setState(() => _isLoading = false);
       }
     }
