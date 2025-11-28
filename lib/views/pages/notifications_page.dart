@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:skillswap/services/connection_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
