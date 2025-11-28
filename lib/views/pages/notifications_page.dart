@@ -39,6 +39,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
           final notifications = snapshot.data!;
 
+          // Auto-mark 'connection_accepted' notifications as read
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            for (final notification in notifications) {
+              if (notification['type'] == 'connection_accepted' && !(notification['read'] as bool)) {
+                _connectionService.markNotificationAsRead(notification['id']);
+              }
+            }
+          });
+
           return ListView.builder(
             itemCount: notifications.length,
             itemBuilder: (context, index) {
@@ -118,7 +127,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 ? _buildActionButtons(notification, senderId)
                 : null,
             onTap: () async {
-              if (!isRead) {
+              if (!isRead && isConnectionRequest) {
                 await _connectionService.markNotificationAsRead(notification['id']);
               }
             },

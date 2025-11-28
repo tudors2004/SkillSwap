@@ -7,6 +7,7 @@ import 'package:skillswap/views/pages/skills_page.dart';
 import 'package:skillswap/views/pages/explore_page.dart';
 import 'package:skillswap/services/connection_service.dart';
 import 'package:skillswap/views/pages/notifications_page.dart';
+import 'package:skillswap/views/pages/chat_list_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,6 +25,7 @@ class _HomePageState extends State<HomePage> {
     const HomeContent(),
     const ExplorePage(),
     const SkillsPage(),
+    const ChatListPage(),
     const ProfilePage(),
   ];
 
@@ -181,6 +183,11 @@ class _HomePageState extends State<HomePage> {
             label: 'My Skills',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
             label: 'Profile',
@@ -238,9 +245,7 @@ class HomeContent extends StatelessWidget {
             title: 'Add skill to teach',
             color: primary,
             onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const SkillsPage()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SkillsPage()));
             },
           ),
         ),

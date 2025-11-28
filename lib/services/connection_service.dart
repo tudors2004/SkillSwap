@@ -5,8 +5,10 @@ class ConnectionService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  User? get _currentUser => _auth.currentUser;
+
   Future<void> sendConnectionRequest(String receiverId) async {
-    final currentUserId = _auth.currentUser?.uid;
+    final currentUserId = _currentUser?.uid;
     if (currentUserId == null) throw Exception('Not authenticated');
 
     final requestId = '${currentUserId}_$receiverId';
@@ -29,7 +31,7 @@ class ConnectionService {
   }
 
   Future<void> acceptConnectionRequest(String requestId, String senderId) async {
-    final currentUserId = _auth.currentUser?.uid;
+    final currentUserId = _currentUser?.uid;
     if (currentUserId == null) throw Exception('Not authenticated');
 
     await _firestore.collection('connection_requests').doc(requestId).update({
@@ -59,8 +61,23 @@ class ConnectionService {
     });
   }
 
+  Stream<List<Map<String, dynamic>>> getChats() {
+    final currentUserId = _currentUser?.uid;
+    if (currentUserId == null) return Stream.value([]);
+
+    return _firestore
+        .collection('chats')
+        .where('users', arrayContains: currentUserId)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return {'id': doc.id, ...doc.data()};
+      }).toList();
+    });
+  }
+
   Future<String?> getConnectionStatus(String otherUserId) async {
-    final currentUserId = _auth.currentUser?.uid;
+    final currentUserId = _currentUser?.uid;
     if (currentUserId == null) return null;
 
     final requestId1 = '${currentUserId}_$otherUserId';
@@ -76,7 +93,7 @@ class ConnectionService {
   }
 
   Stream<int> getUnreadNotificationCount() {
-    final currentUserId = _auth.currentUser?.uid;
+    final currentUserId = _currentUser?.uid;
     if (currentUserId == null) return Stream.value(0);
 
     return _firestore
@@ -89,7 +106,7 @@ class ConnectionService {
 
 
   Stream<List<Map<String, dynamic>>> getNotifications() {
-    final currentUserId = _auth.currentUser?.uid;
+    final currentUserId = _currentUser?.uid;
     if (currentUserId == null) return Stream.value([]);
 
     return _firestore
@@ -100,6 +117,56 @@ class ConnectionService {
         .map((snapshot) => snapshot.docs
         .map((doc) => {'id': doc.id, ...doc.data()})
         .toList());
+  }
+
+    Future<void> sendMessage(String chatId, String text) async {
+    final currentUserId = _currentUser?.uid;
+    if (currentUserId == null) throw Exception('Not authenticated');
+
+    final message = {
+      'senderId': currentUserId,
+      'text': text,
+      'timestamp': FieldValue.serverTimestamp(),
+      'readBy': [currentUserId], 
+    };
+
+    await _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .add(message);
+
+    await _firestore.collection('chats').doc(chatId).update({
+      'lastMessage': message,
+    });
+  }
+
+  Stream<List<Map<String, dynamic>>> getMessages(String chatId) {
+    return _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+  }
+
+  Future<void> markMessageAsRead(String chatId) async {
+    final currentUserId = _currentUser?.uid;
+    if (currentUserId == null) return;
+
+    final docRef = _firestore.collection('chats').doc(chatId);
+    final doc = await docRef.get();
+    final lastMessage = doc.data()?['lastMessage'] as Map<String, dynamic>?;
+
+    if (lastMessage != null && lastMessage['senderId'] != currentUserId) {
+      final readBy = (lastMessage['readBy'] as List?)?.cast<String>() ?? [];
+      if (!readBy.contains(currentUserId)) {
+        await docRef.update({
+          'lastMessage.readBy': FieldValue.arrayUnion([currentUserId])
+        });
+      }
+    }
   }
 
   Future<void> markNotificationAsRead(String notificationId) async {
