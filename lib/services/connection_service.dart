@@ -108,6 +108,10 @@ class ConnectionService {
     });
   }
 
+  Future<void> deleteNotification(String notificationId) async {
+    await _firestore.collection('notifications').doc(notificationId).delete();
+  }
+
   String _getChatId(String userId1, String userId2) {
     return userId1.compareTo(userId2) < 0
         ? '${userId1}_$userId2'

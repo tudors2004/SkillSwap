@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:skillswap/services/connection_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -21,17 +23,21 @@ class _NotificationsPageState extends State<NotificationsPage> {
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: _connectionService.getNotifications(),
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Something went wrong: ${snapshot.error}'));
+          } 
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final notifications = snapshot.data ?? [];
-
-          if (notifications.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
-              child: Text('No notifications'),
+              child: Text('No new notifications'),
             );
           }
+
+          final notifications = snapshot.data!;
 
           return ListView.builder(
             itemCount: notifications.length,
@@ -49,22 +55,58 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final type = notification['type'] as String;
     final isRead = notification['read'] as bool;
     final senderId = notification['senderId'] as String;
+    final isConnectionRequest = type == 'connection_request';
 
-    return FutureBuilder<Map<String, dynamic>?>(
-      future: _getUserData(senderId),
-      builder: (context, snapshot) {
-        final userData = snapshot.data;
-        final userName = userData?['name'] ?? 'Someone';
+    return FutureBuilder<Map<String, dynamic>?>(      future: _getUserData(senderId),
+      builder: (context, userSnapshot) {
+        if (userSnapshot.connectionState == ConnectionState.waiting) {
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: ListTile(
+              leading: const CircleAvatar(child: CircularProgressIndicator(strokeWidth: 2)),
+              title: Container(
+                height: 16,
+                width: 150,
+                color: Colors.grey.withOpacity(0.2),
+              ),
+              subtitle: Container(
+                height: 12,
+                width: 100,
+                color: Colors.grey.withOpacity(0.2),
+              ),
+            ),
+          );
+        }
+
+        if (userSnapshot.hasError || !userSnapshot.hasData) {
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: const ListTile(
+              leading: CircleAvatar(child: Icon(Icons.error)),
+              title: Text('Could not load notification'),
+              subtitle: Text('Error fetching user data'),
+            ),
+          );
+        }
+
+        final userData = userSnapshot.data!;
+        final userName = userData['name'] ?? 'Someone';
+        final profilePicture = userData['profilePictureBase64'] as String?;
 
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          color: isRead ? null : Colors.blue.withOpacity(0.1),
+          color: isRead ? null : Theme.of(context).primaryColor.withOpacity(0.05),
           child: ListTile(
-            leading: const CircleAvatar(
-              child: Icon(Icons.person),
+            leading: CircleAvatar(
+              backgroundImage: (profilePicture != null && profilePicture.isNotEmpty)
+                  ? MemoryImage(base64Decode(profilePicture)) as ImageProvider
+                  : null,
+              child: (profilePicture == null || profilePicture.isEmpty)
+                  ? const Icon(Icons.person)
+                  : null,
             ),
             title: Text(
-              type == 'connection_request'
+              isConnectionRequest
                   ? '$userName sent you a connection request'
                   : '$userName accepted your connection request',
               style: TextStyle(
@@ -72,41 +114,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
               ),
             ),
             subtitle: Text(_formatTimestamp(notification['timestamp'])),
-            trailing: type == 'connection_request'
-                ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.check, color: Colors.green),
-                  onPressed: () async {
-                    await _connectionService.acceptConnectionRequest(
-                      notification['requestId'],
-                      senderId,
-                    );
-                    await _connectionService.markNotificationAsRead(
-                      notification['id'],
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.red),
-                  onPressed: () async {
-                    await _connectionService.declineConnectionRequest(
-                      notification['requestId'],
-                    );
-                    await _connectionService.markNotificationAsRead(
-                      notification['id'],
-                    );
-                  },
-                ),
-              ],
-            )
+            trailing: isConnectionRequest
+                ? _buildActionButtons(notification, senderId)
                 : null,
             onTap: () async {
               if (!isRead) {
-                await _connectionService.markNotificationAsRead(
-                  notification['id'],
-                );
+                await _connectionService.markNotificationAsRead(notification['id']);
               }
             },
           ),
@@ -115,11 +128,33 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 
+  Widget _buildActionButtons(Map<String, dynamic> notification, String senderId) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.check, color: Colors.green),
+          onPressed: () async {
+            await _connectionService.acceptConnectionRequest(
+              notification['requestId'],
+              senderId,
+            );
+            await _connectionService.deleteNotification(notification['id']);
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.close, color: Colors.red),
+          onPressed: () async {
+            await _connectionService.declineConnectionRequest(notification['requestId']);
+            await _connectionService.deleteNotification(notification['id']);
+          },
+        ),
+      ],
+    );
+  }
+
   Future<Map<String, dynamic>?> _getUserData(String userId) async {
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .get();
+    final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
     return doc.data();
   }
 
