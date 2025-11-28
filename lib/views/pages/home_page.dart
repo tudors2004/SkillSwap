@@ -5,7 +5,6 @@ import 'package:skillswap/views/pages/settings_page.dart';
 import 'package:skillswap/views/pages/profile_page.dart';
 import 'package:skillswap/views/pages/skills_page.dart';
 import 'package:skillswap/views/pages/explore_page.dart';
-import 'package:skillswap/views/pages/home_page.dart';
 import 'package:skillswap/views/pages/wallet_page.dart';
 
 class HomePage extends StatefulWidget {
