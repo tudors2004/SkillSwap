@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:skillswap/services/profile_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:skillswap/services/connection_service.dart';
 import 'dart:async';
 
 class ExplorePage extends StatefulWidget {
@@ -528,9 +529,12 @@ class _ExplorePageState extends State<ExplorePage>
     );
   }
 
-  void _showCompatibilityDialog(Map<String, dynamic> user, Map<String, dynamic> compatibility) {
+  void _showCompatibilityDialog(Map<String, dynamic> user, Map<String, dynamic> compatibility) async {
     final isCompatible = compatibility['isCompatible'] as bool;
     final reasons = compatibility['reasons'] as List<String>;
+    final connectionService = ConnectionService();
+    final status = await connectionService.getConnectionStatus(user['uid']);
+    if (!mounted) return;
 
     showDialog(
       context: context,
@@ -580,12 +584,7 @@ class _ExplorePageState extends State<ExplorePage>
                     children: [
                       const Icon(Icons.error_outline, color: Colors.red, size: 18),
                       const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          reason,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ),
+                      Expanded(child: Text(reason, style: const TextStyle(color: Colors.red))),
                     ],
                   ),
                 )),
@@ -598,14 +597,32 @@ class _ExplorePageState extends State<ExplorePage>
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),
           ),
-          if (isCompatible)
+          if (status == null)
             ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // TODO: Navigate to chat or send connection request
+              onPressed: () async {
+                await connectionService.sendConnectionRequest(user['uid']);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Connection request sent!')),
+                  );
+                }
               },
               child: const Text('Connect'),
-            ),
+            )
+          else if (status == 'pending')
+            ElevatedButton(
+              onPressed: null,
+              child: const Text('Pending'),
+            )
+          else if (status == 'accepted')
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  // TODO: Navigate to chat
+                },
+                child: const Text('Chat'),
+              ),
         ],
       ),
     );

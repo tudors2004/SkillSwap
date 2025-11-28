@@ -5,6 +5,8 @@ import 'package:skillswap/views/pages/settings_page.dart';
 import 'package:skillswap/views/pages/profile_page.dart';
 import 'package:skillswap/views/pages/skills_page.dart';
 import 'package:skillswap/views/pages/explore_page.dart';
+import 'package:skillswap/services/connection_service.dart';
+import 'package:skillswap/views/pages/notifications_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,6 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final AuthService _authService = AuthService();
+  final ConnectionService _connectionService = ConnectionService();
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
@@ -46,10 +49,50 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('SkillSwap'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              // Handle notifications
+          StreamBuilder<int>(
+            stream: _connectionService.getUnreadNotificationCount(),
+            builder: (context, snapshot) {
+              final unreadCount = snapshot.data ?? 0;
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  if (unreadCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          unreadCount > 9 ? '9+' : '$unreadCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
             },
           ),
           IconButton(
