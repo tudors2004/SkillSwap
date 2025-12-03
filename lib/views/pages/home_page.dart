@@ -6,6 +6,9 @@ import 'package:skillswap/views/pages/profile_page.dart';
 import 'package:skillswap/views/pages/skills_page.dart';
 import 'package:skillswap/views/pages/explore_page.dart';
 import 'package:skillswap/views/pages/wallet_page.dart';
+import 'package:provider/provider.dart'; 
+import 'package:skillswap/providers/settings_provider.dart'; 
+import 'package:skillswap/providers/theme_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -31,8 +34,26 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
   }
+  @override
+  void initState() {
+    super.initState();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      
+      settingsProvider.syncFromCloud();
+      themeProvider.syncFromCloud();
+    });
+  }
 
   Future<void> _handleLogout() async {
+    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
+    await settingsProvider.clearData();
+    await themeProvider.clearData();
+
     await _authService.signOut();
     if (mounted) {
       Navigator.pushReplacement(

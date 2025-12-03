@@ -70,7 +70,22 @@ class SettingsProvider extends ChangeNotifier {
     await prefs.setBool(_accountPrivacyKey, isPrivate);
     await _settingsService.saveSettings(isAccountPrivate: isPrivate);
   }
+  
   Future<void> syncFromCloud() async {
     await _loadSettings();
+  }
+
+  Future<void> clearData() async {
+    
+    _language = 'en';
+    _notificationsEnabled = true;
+    _isAccountPrivate = false;
+    notifyListeners();
+
+    
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_languageKey);
+    await prefs.remove(_notificationsKey);
+    await prefs.remove(_accountPrivacyKey);
   }
 }
