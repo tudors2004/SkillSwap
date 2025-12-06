@@ -78,5 +78,32 @@
   "location_help_text": "Location helps us find skill swap partners near you",
   "profile_setup": "Profile Setup",
   "complete_profile": "Complete Your Profile",
-  "finish_profile_message": "Finish setting up your profile to start connecting with others!"
+  "finish_profile_message": "Finish setting up your profile to start connecting with others!",
+  "drawer": {
+    "settings": "Settings",
+    "help": "Help & Support",
+    "logout": "Logout"
+  },
+
+  "bottomNav": {
+    "home": "Home",
+    "explore": "Explore",
+    "wallet": "Wallet",
+    "mySkills": "My Skills",
+    "chat": "Chat",
+    "profile": "Profile"
+  },
+  "home2": {
+    "welcome": "Welcome to SkillSwap!",
+    "subtitle": "Connect with others and exchange skills",
+    "trendingSkills": "Trending Skills",
+    "quickActions": {
+      "addSkill": "Add skill to teach",
+      "addGoal": "Add learning goal"
+    }
+  }
+
 }
+
+
+

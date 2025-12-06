@@ -7,6 +7,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:skillswap/data/constants.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 
+//TODO: Solve Add Profile Picture visual bug
+//TODO: Translation in french and german for the profile setup page
+
 class ProfileSetupPage extends StatefulWidget {
   const ProfileSetupPage({super.key});
 

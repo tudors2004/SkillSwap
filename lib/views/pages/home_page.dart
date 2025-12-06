@@ -12,6 +12,8 @@ import 'package:skillswap/providers/theme_provider.dart';
 import 'package:skillswap/services/connection_service.dart';
 import 'package:skillswap/views/pages/notifications_page.dart';
 import 'package:skillswap/views/pages/chat_list_page.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:skillswap/views/pages/help_support_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -158,7 +160,7 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
+              title: Text('drawer.settings'.tr()),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsPage()),
@@ -167,16 +169,17 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               leading: const Icon(Icons.help_outline),
-              title: const Text('Help & Support'),
+              title: Text('drawer.help'.tr()),
               onTap: () {
                 Navigator.pop(context);
-                // Navigate to help
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpSupportPage()),
+                );
               },
             ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
+              title: Text('drawer.logout'.tr()),
               onTap: () {
                 Navigator.pop(context);
                 _handleLogout();
@@ -189,35 +192,36 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
+            label: 'bottomNav.home'.tr(),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            activeIcon: Icon(Icons.explore),
-            label: 'Explore',
-          ),
-          BottomNavigationBarItem(icon: 
-            Icon(Icons.account_balance_wallet_outlined),
-            activeIcon: Icon(Icons.account_balance_wallet), 
-            label: 'Wallet'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.library_books_outlined),
-            activeIcon: Icon(Icons.library_books),
-            label: 'My Skills',
+            icon: const Icon(Icons.explore_outlined),
+            activeIcon: const Icon(Icons.explore),
+            label: 'bottomNav.explore'.tr(),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            activeIcon: Icon(Icons.chat_bubble),
-            label: 'Chat',
+            icon: const Icon(Icons.account_balance_wallet_outlined),
+            activeIcon: const Icon(Icons.account_balance_wallet),
+            label: 'bottomNav.wallet'.tr(),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            icon: const Icon(Icons.library_books_outlined),
+            activeIcon: const Icon(Icons.library_books),
+            label: 'bottomNav.mySkills'.tr(),
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.chat_bubble_outline),
+            activeIcon: const Icon(Icons.chat_bubble),
+            label: 'bottomNav.chat'.tr(),
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.person_outline),
+            activeIcon: const Icon(Icons.person),
+            label: 'bottomNav.profile'.tr(),
           ),
         ],
       ),
