@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:skillswap/services/notification_service.dart';
 
 class ExchangeService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -170,6 +171,7 @@ class ExchangeService {
     required String title,
     required String message,
   }) async {
+
     await _firestore.collection('notifications').add({
       'userId': userId,
       'title': title,
