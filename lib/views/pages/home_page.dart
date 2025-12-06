@@ -9,6 +9,9 @@ import 'package:skillswap/views/pages/wallet_page.dart';
 import 'package:provider/provider.dart'; 
 import 'package:skillswap/providers/settings_provider.dart'; 
 import 'package:skillswap/providers/theme_provider.dart';
+import 'package:skillswap/services/connection_service.dart';
+import 'package:skillswap/views/pages/notifications_page.dart';
+import 'package:skillswap/views/pages/chat_list_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,6 +22,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final AuthService _authService = AuthService();
+  final ConnectionService _connectionService = ConnectionService();
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
@@ -26,6 +30,7 @@ class _HomePageState extends State<HomePage> {
     const ExplorePage(),
     const WalletPage(),
     const SkillsPage(),
+    const ChatListPage(),
     const ProfilePage(),
   ];
 
@@ -69,10 +74,50 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('SkillSwap'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              // Handle notifications
+          StreamBuilder<int>(
+            stream: _connectionService.getUnreadNotificationCount(),
+            builder: (context, snapshot) {
+              final unreadCount = snapshot.data ?? 0;
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  if (unreadCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          unreadCount > 9 ? '9+' : '$unreadCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
             },
           ),
           IconButton(
@@ -165,6 +210,11 @@ class _HomePageState extends State<HomePage> {
             label: 'My Skills',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
             label: 'Profile',
@@ -222,9 +272,7 @@ class HomeContent extends StatelessWidget {
             title: 'Add skill to teach',
             color: primary,
             onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const SkillsPage()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SkillsPage()));
             },
           ),
         ),
