@@ -78,16 +78,5 @@ class SettingsService {
     );
   }
 
-  Future<Map<String, dynamic>?> getSettings() async {
-    if (_userId == null) return null;
-
-    try {
-      final doc = await _firestore.collection('users').doc(_userId).get();
-      final data = doc.data();
-      return data?['settings'] as Map<String, dynamic>?;
-    } catch (e) {
-      print('Error getting settings: $e');
-      return null;
-    }
-  }
+  
 }

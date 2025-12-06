@@ -5,6 +5,10 @@ import 'package:skillswap/views/pages/settings_page.dart';
 import 'package:skillswap/views/pages/profile_page.dart';
 import 'package:skillswap/views/pages/skills_page.dart';
 import 'package:skillswap/views/pages/explore_page.dart';
+import 'package:skillswap/views/pages/wallet_page.dart';
+import 'package:provider/provider.dart'; 
+import 'package:skillswap/providers/settings_provider.dart'; 
+import 'package:skillswap/providers/theme_provider.dart';
 import 'package:skillswap/services/connection_service.dart';
 import 'package:skillswap/views/pages/notifications_page.dart';
 import 'package:skillswap/views/pages/chat_list_page.dart';
@@ -24,6 +28,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     const HomeContent(),
     const ExplorePage(),
+    const WalletPage(),
     const SkillsPage(),
     const ChatListPage(),
     const ProfilePage(),
@@ -34,8 +39,26 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
   }
+  @override
+  void initState() {
+    super.initState();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      
+      settingsProvider.syncFromCloud();
+      themeProvider.syncFromCloud();
+    });
+  }
 
   Future<void> _handleLogout() async {
+    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
+    await settingsProvider.clearData();
+    await themeProvider.clearData();
+
     await _authService.signOut();
     if (mounted) {
       Navigator.pushReplacement(
@@ -177,6 +200,10 @@ class _HomePageState extends State<HomePage> {
             activeIcon: Icon(Icons.explore),
             label: 'Explore',
           ),
+          BottomNavigationBarItem(icon: 
+            Icon(Icons.account_balance_wallet_outlined),
+            activeIcon: Icon(Icons.account_balance_wallet), 
+            label: 'Wallet'),
           BottomNavigationBarItem(
             icon: Icon(Icons.library_books_outlined),
             activeIcon: Icon(Icons.library_books),
