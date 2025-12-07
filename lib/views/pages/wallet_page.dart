@@ -16,7 +16,8 @@ class _WalletPageState extends State<WalletPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final ExchangeService _exchangeService = ExchangeService();
 
-  int _timeBalance = 0;
+  int _hoursLearned = 0;
+  int _hoursTaught = 0;
   double _reputation = 0.0;
   bool _isLoading = true;
   List<Map<String, dynamic>> _connections = [];
@@ -41,7 +42,8 @@ class _WalletPageState extends State<WalletPage> {
       if (userDoc.exists) {
         final userData = userDoc.data()!;
         setState(() {
-          _timeBalance = userData['timeBalance'] ?? 0;
+          _hoursLearned = userData['hoursLearned'] ?? 0;
+          _hoursTaught = userData['hoursTaught'] ?? 0;
           _reputation = (userData['reputation'] ?? 0.0).toDouble();
         });
       }
@@ -140,15 +142,46 @@ class _WalletPageState extends State<WalletPage> {
       ),
       child: Column(
         children: [
-          Text(
-            'Time Balance: $_timeBalance Hours',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    'Hours Learned',
+                    style: const TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$_hoursLearned',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  Text(
+                    'Hours Taught',
+                    style: const TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$_hoursTaught',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

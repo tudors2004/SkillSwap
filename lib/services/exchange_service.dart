@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:skillswap/services/notification_service.dart';
 
 class ExchangeService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -42,6 +41,7 @@ class ExchangeService {
     await _sendNotification(
       userId: partnerId,
       title: 'New Exchange Proposal',
+      type: 'exchange_proposal',
       message: '$userName proposed an exchange: $partnerHours hours of $partnerSkill for $initiatorHours hours of $initiatorSkill',
     );
 
@@ -58,6 +58,7 @@ class ExchangeService {
     await _sendNotification(
       userId: exchange['partnerId'],
       title: 'Exchange Scheduled',
+      type: 'exchange_scheduled',
       message: 'Exchange scheduled for ${_formatDate(scheduledDate)}',
     );
   }
@@ -80,6 +81,7 @@ class ExchangeService {
     await _sendNotification(
       userId: partnerId,
       title: 'Exchange Completed',
+      type: 'exchange_completed',
       message: 'Please confirm the exchange to update time balances',
     );
   }
@@ -113,11 +115,13 @@ class ExchangeService {
     final partnerHours = exchange['partnerHours'] as int;
 
     await _firestore.collection('users').doc(exchange['initiatorId']).update({
-      'timeBalance': FieldValue.increment(partnerHours - initiatorHours),
+      'hoursTaught': FieldValue.increment(initiatorHours),
+      'hoursLearned': FieldValue.increment(partnerHours),
     });
 
     await _firestore.collection('users').doc(exchange['partnerId']).update({
-      'timeBalance': FieldValue.increment(initiatorHours - partnerHours),
+      'hoursTaught': FieldValue.increment(partnerHours),
+      'hoursLearned': FieldValue.increment(initiatorHours),
     });
   }
 
@@ -170,15 +174,23 @@ class ExchangeService {
     required String userId,
     required String title,
     required String message,
+    required String type,
   }) async {
+    try {
+      final currentUserId = _auth.currentUser?.uid;
 
-    await _firestore.collection('notifications').add({
-      'userId': userId,
-      'title': title,
-      'message': message,
-      'read': false,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+      await _firestore.collection('notifications').add({
+        'userId': userId,
+        'senderId': currentUserId,
+        'type': type,
+        'title': title,
+        'message': message,
+        'read': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      rethrow;
+    }
   }
 
   String _formatDate(DateTime date) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skillswap/services/connection_service.dart';
+import 'package:skillswap/services/exchange_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 
@@ -12,6 +13,7 @@ class NotificationsPage extends StatefulWidget {
 
 class _NotificationsPageState extends State<NotificationsPage> {
   final ConnectionService _connectionService = ConnectionService();
+  final ExchangeService _exchangeService = ExchangeService();
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +26,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Something went wrong: ${snapshot.error}'));
-          } 
+          }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -38,10 +40,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
           final notifications = snapshot.data!;
 
-          // Auto-mark 'connection_accepted' notifications as read
+          // Auto-mark informational notifications as read
           WidgetsBinding.instance.addPostFrameCallback((_) {
             for (final notification in notifications) {
-              if (notification['type'] == 'connection_accepted' && !(notification['read'] as bool)) {
+              final type = notification['type'] as String?;
+              if (type == 'connection_accepted' && !(notification['read'] as bool)) {
                 _connectionService.markNotificationAsRead(notification['id']);
               }
             }
@@ -60,46 +63,27 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildNotificationItem(Map<String, dynamic> notification) {
-    final type = notification['type'] as String;
-    final isRead = notification['read'] as bool;
-    final senderId = notification['senderId'] as String;
-    final isConnectionRequest = type == 'connection_request';
+    final type = notification['type'] as String? ?? '';
+    final isRead = notification['read'] as bool? ?? false;
+    final senderId = notification['senderId']?.toString() ?? '';
+
+    if (senderId.isEmpty) return const SizedBox.shrink(); // Don't build item if sender is unknown
 
     return FutureBuilder<Map<String, dynamic>?>(      future: _getUserData(senderId),
       builder: (context, userSnapshot) {
         if (userSnapshot.connectionState == ConnectionState.waiting) {
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: ListTile(
-              leading: const CircleAvatar(child: CircularProgressIndicator(strokeWidth: 2)),
-              title: Container(
-                height: 16,
-                width: 150,
-                color: Colors.grey.withOpacity(0.2),
-              ),
-              subtitle: Container(
-                height: 12,
-                width: 100,
-                color: Colors.grey.withOpacity(0.2),
-              ),
-            ),
-          );
+          return const ListTile(title: Text('Loading notification...'));
         }
 
-        if (userSnapshot.hasError || !userSnapshot.hasData) {
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: const ListTile(
-              leading: CircleAvatar(child: Icon(Icons.error)),
-              title: Text('Could not load notification'),
-              subtitle: Text('Error fetching user data'),
-            ),
-          );
+        if (!userSnapshot.hasData) {
+          return const ListTile(title: Text('Could not load user data.'));
         }
 
         final userData = userSnapshot.data!;
         final userName = userData['name'] ?? 'Someone';
         final profilePicture = userData['profilePictureBase64'] as String?;
+
+        final titleText = notification['message'] ?? 'You have a new notification';
 
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -113,52 +97,56 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   ? const Icon(Icons.person)
                   : null,
             ),
-            title: Text(
-              isConnectionRequest
-                  ? '$userName sent you a connection request'
-                  : '$userName accepted your connection request',
-              style: TextStyle(
-                fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-              ),
-            ),
+            title: Text(titleText, style: TextStyle(fontWeight: isRead ? FontWeight.normal : FontWeight.bold)),
             subtitle: Text(_formatTimestamp(notification['timestamp'])),
-            trailing: isConnectionRequest
-                ? _buildActionButtons(notification, senderId)
-                : null,
-            onTap: () async {
-              if (!isRead && isConnectionRequest) {
-                await _connectionService.markNotificationAsRead(notification['id']);
-              }
-            },
+            trailing: _buildTrailingWidget(notification, senderId),
+            onTap: () => _handleNotificationTap(notification),
           ),
         );
       },
     );
   }
 
-  Widget _buildActionButtons(Map<String, dynamic> notification, String senderId) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.check, color: Colors.green),
-          onPressed: () async {
-            await _connectionService.acceptConnectionRequest(
-              notification['requestId'],
-              senderId,
-            );
-            await _connectionService.deleteNotification(notification['id']);
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.close, color: Colors.red),
-          onPressed: () async {
-            await _connectionService.declineConnectionRequest(notification['requestId']);
-            await _connectionService.deleteNotification(notification['id']);
-          },
-        ),
-      ],
-    );
+  Widget? _buildTrailingWidget(Map<String, dynamic> notification, String senderId) {
+    final type = notification['type'] as String;
+
+    switch (type) {
+      case 'connection_request':
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: () => _acceptConnection(notification, senderId)),
+            IconButton(icon: const Icon(Icons.close, color: Colors.red), onPressed: () => _declineConnection(notification)),
+          ],
+        );
+      case 'exchange_completion':
+        return ElevatedButton(onPressed: () => _confirmExchange(notification), child: const Text('Confirm'));
+      default:
+        return null;
+    }
+  }
+
+  void _handleNotificationTap(Map<String, dynamic> notification) {
+    final isRead = notification['read'] as bool;
+
+    if (!isRead) {
+      _connectionService.markNotificationAsRead(notification['id']);
+    }
+  }
+
+  void _acceptConnection(Map<String, dynamic> notification, String senderId) async {
+    await _connectionService.acceptConnectionRequest(notification['requestId'], senderId);
+    await _connectionService.deleteNotification(notification['id']);
+  }
+
+  void _declineConnection(Map<String, dynamic> notification) async {
+    await _connectionService.declineConnectionRequest(notification['requestId']);
+    await _connectionService.deleteNotification(notification['id']);
+  }
+
+  void _confirmExchange(Map<String, dynamic> notification) async {
+    await _exchangeService.markExchangeCompleted(notification['exchangeId']);
+    await _connectionService.deleteNotification(notification['id']);
   }
 
   Future<Map<String, dynamic>?> _getUserData(String userId) async {
@@ -168,7 +156,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   String _formatTimestamp(dynamic timestamp) {
     if (timestamp == null) return 'Just now';
-
     final DateTime dateTime = (timestamp as Timestamp).toDate();
     final now = DateTime.now();
     final difference = now.difference(dateTime);
