@@ -5,6 +5,15 @@ import 'package:skillswap/views/pages/settings_page.dart';
 import 'package:skillswap/views/pages/profile_page.dart';
 import 'package:skillswap/views/pages/skills_page.dart';
 import 'package:skillswap/views/pages/explore_page.dart';
+import 'package:skillswap/views/pages/wallet_page.dart';
+import 'package:provider/provider.dart'; 
+import 'package:skillswap/providers/settings_provider.dart'; 
+import 'package:skillswap/providers/theme_provider.dart';
+import 'package:skillswap/services/connection_service.dart';
+import 'package:skillswap/views/pages/notifications_page.dart';
+import 'package:skillswap/views/pages/chat_list_page.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:skillswap/views/pages/help_support_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,12 +24,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final AuthService _authService = AuthService();
+  final ConnectionService _connectionService = ConnectionService();
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
     const HomeContent(),
     const ExplorePage(),
+    const WalletPage(),
     const SkillsPage(),
+    const ChatListPage(),
     const ProfilePage(),
   ];
 
@@ -29,8 +41,26 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
   }
+  @override
+  void initState() {
+    super.initState();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      
+      settingsProvider.syncFromCloud();
+      themeProvider.syncFromCloud();
+    });
+  }
 
   Future<void> _handleLogout() async {
+    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
+    await settingsProvider.clearData();
+    await themeProvider.clearData();
+
     await _authService.signOut();
     if (mounted) {
       Navigator.pushReplacement(
@@ -46,10 +76,50 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('SkillSwap'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              // Handle notifications
+          StreamBuilder<int>(
+            stream: _connectionService.getUnreadNotificationCount(),
+            builder: (context, snapshot) {
+              final unreadCount = snapshot.data ?? 0;
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  if (unreadCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          unreadCount > 9 ? '9+' : '$unreadCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
             },
           ),
           IconButton(
@@ -90,7 +160,7 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
+              title: Text('drawer.settings'.tr()),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsPage()),
@@ -99,16 +169,17 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               leading: const Icon(Icons.help_outline),
-              title: const Text('Help & Support'),
+              title: Text('drawer.help'.tr()),
               onTap: () {
                 Navigator.pop(context);
-                // Navigate to help
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpSupportPage()),
+                );
               },
             ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
+              title: Text('drawer.logout'.tr()),
               onTap: () {
                 Navigator.pop(context);
                 _handleLogout();
@@ -121,26 +192,36 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
+            label: 'bottomNav.home'.tr(),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            activeIcon: Icon(Icons.explore),
-            label: 'Explore',
+            icon: const Icon(Icons.explore_outlined),
+            activeIcon: const Icon(Icons.explore),
+            label: 'bottomNav.explore'.tr(),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.library_books_outlined),
-            activeIcon: Icon(Icons.library_books),
-            label: 'My Skills',
+            icon: const Icon(Icons.account_balance_wallet_outlined),
+            activeIcon: const Icon(Icons.account_balance_wallet),
+            label: 'bottomNav.wallet'.tr(),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            icon: const Icon(Icons.library_books_outlined),
+            activeIcon: const Icon(Icons.library_books),
+            label: 'bottomNav.mySkills'.tr(),
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.chat_bubble_outline),
+            activeIcon: const Icon(Icons.chat_bubble),
+            label: 'bottomNav.chat'.tr(),
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.person_outline),
+            activeIcon: const Icon(Icons.person),
+            label: 'bottomNav.profile'.tr(),
           ),
         ],
       ),
@@ -195,9 +276,7 @@ class HomeContent extends StatelessWidget {
             title: 'Add skill to teach',
             color: primary,
             onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const SkillsPage()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SkillsPage()));
             },
           ),
         ),

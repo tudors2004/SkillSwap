@@ -4,6 +4,8 @@ import 'package:skillswap/views/pages/home_page.dart';
 import 'package:skillswap/views/pages/register_page.dart';
 import 'package:skillswap/services/auth_service.dart';
 
+//TODO: Solve the visual black on black writing problem
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 

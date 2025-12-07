@@ -78,5 +78,20 @@
   "location_help_text": "La localisation nous aide à trouver des partenaires d'échange de compétences près de chez vous",
   "profile_setup": "Configuration du Profil",
   "complete_profile": "Complétez Votre Profil",
-  "finish_profile_message": "Terminez la configuration de votre profil pour commencer à vous connecter avec d'autres!"
+  "finish_profile_message": "Terminez la configuration de votre profil pour commencer à vous connecter avec d'autres!",
+  "drawer": {
+    "settings": "Paramètres",
+    "help": "Aide & Support",
+    "logout": "Déconnexion"
+  },
+
+  "bottomNav": {
+    "home": "Accueil",
+    "explore": "Explorer",
+    "wallet": "Portefeuille",
+    "mySkills": "Mes Compétences",
+    "chat": "Discussion",
+    "profile": "Profil"
+  }
+
 }

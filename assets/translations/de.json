@@ -78,5 +78,18 @@
   "location_help_text": "Der Standort hilft uns, Skill-Swap-Partner in Ihrer Nähe zu finden",
   "profile_setup": "Profil Einrichten",
   "complete_profile": "Vervollständigen Sie Ihr Profil",
-  "finish_profile_message": "Schließen Sie die Einrichtung Ihres Profils ab, um mit anderen in Kontakt zu treten!"
+  "finish_profile_message": "Schließen Sie die Einrichtung Ihres Profils ab, um mi,t anderen in Kontakt zu treten!",
+  "drawer": {
+    "settings": "Einstellungen",
+    "help": "Hilfe & Support",
+    "logout": "Abmelden"
+  },
+  "bottomNav": {
+    "home": "Startseite",
+    "explore": "Erkunden",
+    "wallet": "Geldbörse",
+    "mySkills": "Meine Fähigkeiten",
+    "chat": "Chat",
+    "profile": "Profil"
+  }
 }

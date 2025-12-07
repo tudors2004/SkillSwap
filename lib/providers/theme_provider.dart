@@ -52,4 +52,12 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> syncFromCloud() async {
     await _loadThemeMode();
   }
+
+  Future<void> clearData() async {
+    _themeMode = ThemeMode.system;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_themeKey);
+  }
 }

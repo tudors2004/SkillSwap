@@ -55,6 +55,7 @@ dependencies:
   multilingual: ^1.1.7
   geolocator: ^14.0.2
   dropdown_search: ^6.0.2
+  url_launcher: ^6.2.0
 
 dev_dependencies:
   flutter_test:
