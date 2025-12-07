@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
 
@@ -15,12 +17,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   Future<void> _changePassword() async {
     if (_newPasswordController.text != _confirmPasswordController.text) {
-      _showError('Passwords do not match');
+      _showError('change_password_page.error_no_match'.tr());
       return;
     }
 
     if (_newPasswordController.text.length < 6) {
-      _showError('Password must be at least 6 characters');
+      _showError('change_password_page.error_min_length'.tr());
       return;
     }
 
@@ -29,7 +31,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null || user.email == null) {
-        _showError('No user logged in');
+        _showError('change_password_page.error_no_user'.tr());
         return;
       }
 
@@ -43,12 +45,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password changed successfully')),
+          SnackBar(content: Text('change_password_page.success_message'.tr())),
         );
         Navigator.pop(context);
       }
     } on FirebaseAuthException catch (e) {
-      _showError(e.message ?? 'Failed to change password');
+      _showError(e.message ?? 'change_password_page.error_default'.tr());
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -63,7 +65,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Change Password'),
+        title: Text('change_password_page.title'.tr()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -74,8 +76,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             TextField(
               controller: _currentPasswordController,
               obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Current Password',
+              decoration: InputDecoration(
+                labelText: 'change_password_page.current_password'.tr(),
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.lock_outline),
               ),
@@ -84,8 +86,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             TextField(
               controller: _newPasswordController,
               obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'New Password',
+              decoration: InputDecoration(
+                labelText: 'change_password_page.new_password'.tr(),
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.lock),
               ),
@@ -94,8 +96,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             TextField(
               controller: _confirmPasswordController,
               obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Confirm New Password',
+              decoration: InputDecoration(
+                labelText: 'change_password_page.confirm_new_password'.tr(),
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.lock),
               ),
@@ -112,7 +114,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 width: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-                  : const Text('Change Password'),
+                  : Text('change_password_page.button_change'.tr())
             ),
           ],
         ),

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/exchange_service.dart';
 import 'package:intl/intl.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key});
@@ -148,7 +149,7 @@ class _WalletPageState extends State<WalletPage> {
               Column(
                 children: [
                   Text(
-                    'Hours Learned',
+                    'wallet_page.hours_learned'.tr(),
                     style: const TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
@@ -165,7 +166,7 @@ class _WalletPageState extends State<WalletPage> {
               Column(
                 children: [
                   Text(
-                    'Hours Taught',
+                    'wallet_page.hours_taught'.tr(),
                     style: const TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
@@ -188,7 +189,7 @@ class _WalletPageState extends State<WalletPage> {
               const Icon(Icons.star, size: 20, color: Colors.amber),
               const SizedBox(width: 4),
               Text(
-                'Reputation: ${_reputation.toStringAsFixed(1)}/5.0',
+                '${'wallet_page.reputation'.tr()}: ${_reputation.toStringAsFixed(1)}/5.0',
                 style: const TextStyle(fontSize: 16, color: Colors.black54),
               ),
             ],
@@ -202,8 +203,8 @@ class _WalletPageState extends State<WalletPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'My Connections',
+        Text(
+          'wallet_page.my_connections'.tr(),
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
@@ -214,8 +215,8 @@ class _WalletPageState extends State<WalletPage> {
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Center(
-              child: Text('No connections yet. Start connecting with people!'),
+            child: Center(
+              child: Text('wallet_page.no_connections'.tr()),
             ),
           )
         else
@@ -233,7 +234,7 @@ class _WalletPageState extends State<WalletPage> {
                   ),
                   title: Text(connection['name']),
                   subtitle: Text(
-                    'Skills: ${(connection['skills'] as List).take(2).join(', ')}',
+                    '${'wallet_page.skills_label'.tr()}: ${(connection['skills'] as List).take(2).join(', ')}',
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () => _showExchangeProposalDialog(connection),
@@ -249,8 +250,8 @@ class _WalletPageState extends State<WalletPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'My Exchanges',
+        Text(
+          'wallet_page.my_exchanges'.tr(),
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
@@ -269,8 +270,8 @@ class _WalletPageState extends State<WalletPage> {
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
-                  child: Text('No exchanges yet'),
+                child: Center(
+                  child: Text('wallet_page.no_exchanges'.tr()),
                 ),
               );
             }
@@ -356,12 +357,12 @@ class _WalletPageState extends State<WalletPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Exchange with $partnerName',
+                'wallet_page.exchange_with'.tr(namedArgs: {'name': partnerName}),
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 4),
-              Text('I give: $myHours hours of $mySkill'),
-              Text('I receive: $partnerHours hours of $partnerSkill'),
+              Text('wallet_page.i_give'.tr(namedArgs: {'hours': myHours.toString(), 'skill': mySkill})),
+              Text('wallet_page.i_receive'.tr(namedArgs: {'hours': partnerHours.toString(), 'skill': partnerSkill})),
             ],
           ),
         ),
@@ -378,13 +379,13 @@ class _WalletPageState extends State<WalletPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Propose Exchange with ${connection['name']}'),
+        title: Text('wallet_page.propose_exchange_title'.tr(namedArgs: {'name': connection['name']})),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('I want to learn:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('wallet_page.i_want_to_learn'.tr(), style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
 
               StreamBuilder<DocumentSnapshot>(
@@ -396,19 +397,19 @@ class _WalletPageState extends State<WalletPage> {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData || !snapshot.data!.exists) {
-                    return const Text('Partner has no skills added');
+                    return Text('wallet_page.partner_no_skills'.tr());
                   }
 
                   final skillsData = snapshot.data!.data() as Map<String, dynamic>;
                   final skillsToOffer = (skillsData['skillsToOffer'] as List?)?.cast<Map<String, dynamic>>() ?? [];
 
                   if (skillsToOffer.isEmpty) {
-                    return const Text('Partner has no skills to offer');
+                    return Text('wallet_page.partner_no_skills_offer'.tr());
                   }
 
                   return DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      hintText: 'Select skill to learn',
+                    decoration: InputDecoration(
+                      hintText: 'wallet_page.select_skill_learn'.tr(),
                       border: OutlineInputBorder(),
                       isDense: true,
                     ),
@@ -429,14 +430,14 @@ class _WalletPageState extends State<WalletPage> {
               TextField(
                 controller: partnerHoursController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Hours requested',
+                decoration: InputDecoration(
+                  labelText: 'wallet_page.hours_requested'.tr(),
                   border: OutlineInputBorder(),
                   isDense: true,
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('In exchange for:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('wallet_page.in_exchange_for'.tr(), style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               StreamBuilder<DocumentSnapshot>(
                 stream: _firestore
@@ -447,19 +448,19 @@ class _WalletPageState extends State<WalletPage> {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData || !snapshot.data!.exists) {
-                    return const Text('You have no skills added. Please add skills first.');
+                    return Text('wallet_page.no_skills_added'.tr());
                   }
 
                   final skillsData = snapshot.data!.data() as Map<String, dynamic>;
                   final mySkills = (skillsData['skillsToOffer'] as List?)?.cast<Map<String, dynamic>>() ?? [];
 
                   if (mySkills.isEmpty) {
-                    return const Text('You have no skills to offer. Please add skills first.');
+                    return Text('wallet_page.no_skills_offer'.tr());
                   }
 
                   return DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      hintText: 'Select skill to offer',
+                    decoration: InputDecoration(
+                      hintText: 'wallet_page.select_skill_offer'.tr(),
                       border: OutlineInputBorder(),
                       isDense: true,
                     ),
@@ -480,8 +481,8 @@ class _WalletPageState extends State<WalletPage> {
               TextField(
                 controller: initiatorHoursController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Hours offered',
+                decoration: InputDecoration(
+                  labelText: 'wallet_page.hours_offered'.tr(),
                   border: OutlineInputBorder(),
                   isDense: true,
                 ),
@@ -492,13 +493,13 @@ class _WalletPageState extends State<WalletPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('wallet_page.cancel'.tr()),
           ),
           ElevatedButton(
             onPressed: () async {
               if (initiatorSkillController.text.isEmpty || partnerSkillController.text.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please select both skills')),
+                  SnackBar(content: Text('wallet_page.select_both_skills'.tr())),
                 );
                 return;
               }
@@ -516,7 +517,7 @@ class _WalletPageState extends State<WalletPage> {
                 if (context.mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Exchange proposal sent!')),
+                    SnackBar(content: Text('wallet_page.proposal_sent'.tr())),
                   );
                 }
               } catch (e) {
@@ -527,7 +528,7 @@ class _WalletPageState extends State<WalletPage> {
                 }
               }
             },
-            child: const Text('Propose'),
+            child: Text('wallet_page.propose'.tr()),
           ),
         ],
       ),
@@ -542,37 +543,37 @@ class _WalletPageState extends State<WalletPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Exchange with $partnerName'),
+        title: Text('wallet_page.exchange_details_title'.tr(namedArgs: {'name': partnerName})),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildExchangeDetail(
-                'I agreed to ${isInitiator ? 'help' : 'receive help from'} $partnerName',
+                'wallet_page.i_agreed_${isInitiator ? 'help' : 'receive'}'.tr(namedArgs: {'name': partnerName}),
               ),
               const SizedBox(height: 12),
               _buildExchangeDetail(
-                'Teaching: ${isInitiator ? exchange['initiatorSkill'] : exchange['partnerSkill']}',
+                'wallet_page.teaching'.tr(namedArgs: {'skill': isInitiator ? exchange['initiatorSkill'] : exchange['partnerSkill']}),
               ),
               _buildExchangeDetail(
-                'Duration: ${isInitiator ? exchange['initiatorHours'] : exchange['partnerHours']} hours',
-              ),
-              const Divider(height: 24),
-              _buildExchangeDetail(
-                'In exchange for: ${isInitiator ? exchange['partnerSkill'] : exchange['initiatorSkill']}',
-              ),
-              _buildExchangeDetail(
-                'Duration: ${isInitiator ? exchange['partnerHours'] : exchange['initiatorHours']} hours',
+                'wallet_page.duration'.tr(namedArgs: {'hours': (isInitiator ? exchange['initiatorHours'] : exchange['partnerHours']).toString()}),
               ),
               const Divider(height: 24),
               _buildExchangeDetail(
-                'Status: ${exchange['status'].toString().toUpperCase()}',
+                'wallet_page.in_exchange_for_skill'.tr(namedArgs: {'skill': isInitiator ? exchange['partnerSkill'] : exchange['initiatorSkill']}),
+              ),
+              _buildExchangeDetail(
+                'wallet_page.duration'.tr(namedArgs: {'hours': (isInitiator ? exchange['partnerHours'] : exchange['initiatorHours']).toString()}),
+              ),
+              const Divider(height: 24),
+              _buildExchangeDetail(
+                'wallet_page.status'.tr(namedArgs: {'status': exchange['status'].toString().toUpperCase()}),
                 bold: true,
               ),
               if (exchange['scheduledDate'] != null)
                 _buildExchangeDetail(
-                  'Scheduled: ${DateFormat('EEEE, MMM dd, yyyy \'at\' HH:mm').format((exchange['scheduledDate'] as Timestamp).toDate())}',
+                  'wallet_page.scheduled'.tr(namedArgs: {'date': DateFormat('EEEE, MMM dd, yyyy \'at\' HH:mm').format((exchange['scheduledDate'] as Timestamp).toDate())}),
                 ),
             ],
           ),
@@ -599,7 +600,7 @@ class _WalletPageState extends State<WalletPage> {
     final actions = <Widget>[
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Close'),
+        child: Text('wallet_page.close'.tr()),
       ),
     ];
 
@@ -614,7 +615,7 @@ class _WalletPageState extends State<WalletPage> {
                 Navigator.pop(context);
                 _showScheduleDialog(exchange);
               },
-              child: const Text('Schedule'),
+              child: Text('wallet_page.schedule'.tr()),
             ),
           );
         }
@@ -628,11 +629,11 @@ class _WalletPageState extends State<WalletPage> {
               if (context.mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Marked as completed. Waiting for confirmation.')),
+                  SnackBar(content: Text('wallet_page.marked_completed'.tr())),
                 );
               }
             },
-            child: const Text('Mark Complete'),
+            child: Text('wallet_page.mark_complete'.tr()),
           ),
         );
         break;
@@ -648,7 +649,7 @@ class _WalletPageState extends State<WalletPage> {
                 Navigator.pop(context);
                 _showRatingDialog(exchange);
               },
-              child: const Text('Confirm & Rate'),
+              child: Text('wallet_page.confirm_and_rate'.tr()),
             ),
           );
         }
@@ -666,13 +667,13 @@ class _WalletPageState extends State<WalletPage> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Schedule Exchange'),
+          title: Text('wallet_page.schedule_exchange_title'.tr()),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
                 leading: const Icon(Icons.calendar_today),
-                title: const Text('Date'),
+                title: Text('wallet_page.date'.tr()),
                 subtitle: Text(DateFormat('EEEE, MMMM dd, yyyy').format(selectedDate)),
                 onTap: () async {
                   final picked = await showDatePicker(
@@ -688,7 +689,7 @@ class _WalletPageState extends State<WalletPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.access_time),
-                title: const Text('Time'),
+                title: Text('wallet_page.time'.tr()),
                 subtitle: Text(selectedTime.format(context)),
                 onTap: () async {
                   final picked = await showTimePicker(
@@ -705,7 +706,7 @@ class _WalletPageState extends State<WalletPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text('wallet_page.cancel'.tr()),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -722,11 +723,11 @@ class _WalletPageState extends State<WalletPage> {
                 if (context.mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Exchange scheduled!')),
+                    SnackBar(content: Text('wallet_page.exchange_scheduled'.tr())),
                   );
                 }
               },
-              child: const Text('Schedule'),
+              child: Text('wallet_page.schedule'.tr()),
             ),
           ],
         ),
@@ -741,11 +742,11 @@ class _WalletPageState extends State<WalletPage> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Rate Experience'),
+          title: Text('wallet_page.rate_experience_title'.tr()),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('How was your experience?'),
+              Text('wallet_page.how_was_experience'.tr()),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -768,7 +769,7 @@ class _WalletPageState extends State<WalletPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text('wallet_page.cancel'.tr()),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -777,11 +778,11 @@ class _WalletPageState extends State<WalletPage> {
                 if (context.mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Exchange confirmed! Time balance updated.')),
+                    SnackBar(content: Text('wallet_page.exchange_confirmed'.tr())),
                   );
                 }
               },
-              child: const Text('Confirm'),
+              child: Text('wallet_page.confirm'.tr()),
             ),
           ],
         ),

@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:skillswap/data/constants.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 //TODO: Solve Add Profile Picture visual bug
 //TODO: Translation in french and german for the profile setup page
@@ -121,18 +122,18 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
     final result = await showDialog<ImageSource>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Choose Image Source'),
+        title: Text('profile_setup_page.choose_image_source'.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Gallery'),
+              title: Text('profile_setup_page.gallery'.tr()),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
+              title: Text('profile_setup_page.camera'.tr()),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
           ],
@@ -165,7 +166,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
+        ).showSnackBar(SnackBar(
+          content: Text('profile_setup_page.error_picking_image'.tr(namedArgs: {'error': e.toString()})),
+        ));
       }
     }
   }
@@ -174,16 +177,16 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
     final cameraPermission = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Camera Permission'),
-        content: const Text('Do you allow SkillSwap to access your camera?'),
+        title: Text('profile_setup_page.camera_permission_title'.tr()),
+        content: Text('profile_setup_page.camera_permission_message'.tr()),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Deny'),
+            child: Text('profile_setup_page.deny'.tr()),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Allow'),
+            child: Text('profile_setup_page.allow'.tr()),
           ),
         ],
       ),
@@ -196,10 +199,10 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
     if (status.isDenied || status.isPermanentlyDenied) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Camera permission is required to take photos'),
+          SnackBar(
+            content: Text('profile_setup_page.camera_permission_required'.tr()),
             action: SnackBarAction(
-              label: 'Settings',
+              label: 'profile_setup_page.settings'.tr(),
               onPressed: openAppSettings,
             ),
           ),
@@ -215,18 +218,18 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Location Permission'),
-        content: const Text(
-          'Do you allow SkillSwap to use your location while using the app?',
+        title: Text('profile_setup_page.location_permission_title'.tr()),
+        content: Text(
+          'profile_setup_page.location_permission_message'.tr(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Deny'),
+            child: Text('profile_setup_page.deny'.tr()),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Allow'),
+            child: Text('profile_setup_page.allow'.tr()),
           ),
         ],
       ),
@@ -236,10 +239,10 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Row(
             children: [
-              SizedBox(
+              const SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
@@ -247,11 +250,11 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   color: Colors.white,
                 ),
               ),
-              SizedBox(width: 16),
-              Text('Getting your location...'),
+              const SizedBox(width: 16),
+              Text('profile_setup_page.getting_location'.tr()),
             ],
           ),
-          duration: Duration(seconds: 10),
+          duration: const Duration(seconds: 10),
         ),
       );
     }
@@ -262,11 +265,11 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text(
-                'Location services are disabled. Please enable them in settings.',
+                'profile_setup_page.location_services_disabled'.tr(),
               ),
-              duration: Duration(seconds: 3),
+              duration: const Duration(seconds: 3),
             ),
           );
         }
@@ -280,9 +283,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
           if (mounted) {
             ScaffoldMessenger.of(context).clearSnackBars();
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Location permission denied'),
-                duration: Duration(seconds: 2),
+              SnackBar(
+                content: Text('profile_setup_page.location_permission_denied'.tr()),
+                duration: const Duration(seconds: 2),
               ),
             );
           }
@@ -294,15 +297,15 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text(
-                'Location permission permanently denied. Please enable in settings.',
+                'profile_setup_page.location_permission_permanently_denied'.tr(),
               ),
               action: SnackBarAction(
-                label: 'Settings',
+                label: 'profile_setup_page.settings'.tr(),
                 onPressed: Geolocator.openLocationSettings,
               ),
-              duration: Duration(seconds: 5),
+              duration: const Duration(seconds: 5),
             ),
           );
         }
@@ -322,16 +325,16 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
 
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 16),
-                Text('Location enabled successfully!'),
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 16),
+                Text('profile_setup_page.location_enabled_success'.tr()),
               ],
             ),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -340,7 +343,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error getting location: $e'),
+            content: Text('profile_setup_page.error_getting_location'.tr(namedArgs: {'error': e.toString()})),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
@@ -362,7 +365,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
     if (_formKey.currentState!.validate()) {
       if (_dateOfBirth == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select your date of birth')),
+          SnackBar(content: Text('profile_setup_page.select_dob_error'.tr())),
         );
         return;
       }
@@ -396,7 +399,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         if (mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('Error saving profile: $e')));
+          ).showSnackBar(SnackBar(content: Text('profile_setup_page.error_saving_profile'.tr(namedArgs: {'error': e.toString()}))));
         }
       }
     }
@@ -430,7 +433,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile Setup'),
+        title: Text('profile_setup_page.title'.tr()),
         automaticallyImplyLeading: false,
       ),
       body: Form(
@@ -445,7 +448,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   if (_currentStep > 0)
                     TextButton(
                       onPressed: details.onStepCancel,
-                      child: const Text('Back'),
+                      child: Text('profile_setup_page.button_back'.tr()),
                     ),
                   const SizedBox(width: 10),
                   ElevatedButton(
@@ -455,7 +458,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                     ),
                     onPressed: details.onStepContinue,
-                    child: Text(_currentStep == 2 ? 'Submit' : 'Continue'),
+                    child: Text(_currentStep == 2 ? 'profile_setup_page.button_submit'.tr() : 'profile_setup_page.button_continue'.tr()),
                   ),
                 ],
               ),
@@ -476,7 +479,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
           },
           steps: [
             Step(
-              title: const Text('Basic Information'),
+              title: Text('profile_setup_page.step_basic_info'.tr()),
               isActive: _currentStep >= 0,
               content: Column(
                 children: [
@@ -491,21 +494,21 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       icon: const Icon(Icons.camera_alt),
                       label: Text(
                         _profilePicturePath == null
-                            ? 'Add Profile Picture'
-                            : 'Change Picture',
+                            ? 'profile_setup_page.add_profile_picture'.tr()
+                            : 'profile_setup_page.change_picture'.tr(),
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
                   TextFormField(
                     controller: _nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Full Name',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.person),
+                    decoration: InputDecoration(
+                      labelText: 'profile_setup_page.full_name'.tr(),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.person),
                     ),
                     validator: (v) =>
-                        v?.isEmpty ?? true ? 'Name is required' : null,
+                        v?.isEmpty ?? true ? 'profile_setup_page.name_required'.tr() : null,
                   ),
                   const SizedBox(height: 16),
                   InkWell(
@@ -519,14 +522,14 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       if (date != null) setState(() => _dateOfBirth = date);
                     },
                     child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Date of Birth',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.calendar_today),
+                      decoration: InputDecoration(
+                        labelText: 'profile_setup_page.date_of_birth'.tr(),
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.calendar_today),
                       ),
                       child: Text(
                         _dateOfBirth == null
-                            ? 'Select Date of Birth'
+                            ? 'profile_setup_page.select_date_of_birth'.tr()
                             : '${_dateOfBirth!.day}/${_dateOfBirth!.month}/${_dateOfBirth!.year}',
                       ),
                     ),
@@ -534,16 +537,18 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _gender,
-                    decoration: const InputDecoration(
-                      labelText: 'Gender',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.wc),
+                    decoration: InputDecoration(
+                      labelText: 'profile_setup_page.gender'.tr(),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.wc),
                     ),
-                    items: ['Male', 'Female', 'Other']
-                        .map((g) => DropdownMenuItem(value: g, child: Text(g)))
-                        .toList(),
+                    items: [
+                      DropdownMenuItem(value: 'Male', child: Text('profile_setup_page.male'.tr())),
+                      DropdownMenuItem(value: 'Female', child: Text('profile_setup_page.female'.tr())),
+                      DropdownMenuItem(value: 'Other', child: Text('profile_setup_page.other'.tr())),
+                    ],
                     onChanged: (v) => setState(() => _gender = v),
-                    validator: (v) => v == null ? 'Gender is required' : null,
+                    validator: (v) => v == null ? 'profile_setup_page.gender_required'.tr() : null,
                   ),
                   const SizedBox(height: 16),
                   DropdownSearch<String>(
@@ -552,23 +557,23 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     selectedItem: _nationality,
                     decoratorProps: DropDownDecoratorProps(
                       decoration: InputDecoration(
-                        labelText: 'Nationality',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.flag),
+                        labelText: 'profile_setup_page.nationality'.tr(),
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.flag),
                       ),
                     ),
                     popupProps: PopupProps.menu(
                       showSearchBox: true,
                       searchFieldProps: TextFieldProps(
                         decoration: InputDecoration(
-                          hintText: 'Search nationality...',
-                          prefixIcon: Icon(Icons.search),
+                          hintText: 'profile_setup_page.search_nationality'.tr(),
+                          prefixIcon: const Icon(Icons.search),
                         ),
                       ),
                     ),
                     onChanged: (v) => setState(() => _nationality = v),
                     validator: (v) =>
-                        v == null ? 'Nationality is required' : null,
+                        v == null ? 'profile_setup_page.nationality_required'.tr() : null,
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -589,16 +594,16 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                               item1['code'] == item2['code'],
                           decoratorProps: DropDownDecoratorProps(
                             decoration: InputDecoration(
-                              labelText: 'Code',
-                              border: OutlineInputBorder(),
+                              labelText: 'profile_setup_page.phone_code'.tr(),
+                              border: const OutlineInputBorder(),
                             ),
                           ),
                           popupProps: PopupProps.menu(
                             showSearchBox: true,
                             searchFieldProps: TextFieldProps(
                               decoration: InputDecoration(
-                                hintText: 'Search country...',
-                                prefixIcon: Icon(Icons.search),
+                                hintText: 'profile_setup_page.search_country'.tr(),
+                                prefixIcon: const Icon(Icons.search),
                               ),
                             ),
                           ),
@@ -615,14 +620,14 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       Expanded(
                         child: TextFormField(
                           controller: _phoneController,
-                          decoration: const InputDecoration(
-                            labelText: 'Phone Number',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.phone),
+                          decoration: InputDecoration(
+                            labelText: 'profile_setup_page.phone_number'.tr(),
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.phone),
                           ),
                           keyboardType: TextInputType.phone,
                           validator: (v) => v?.isEmpty ?? true
-                              ? 'Phone number is required'
+                              ? 'profile_setup_page.phone_required'.tr()
                               : null,
                         ),
                       ),
@@ -632,15 +637,15 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
               ),
             ),
             Step(
-              title: const Text('Location'),
+              title: Text('profile_setup_page.step_location'.tr()),
               isActive: _currentStep >= 1,
               content: Column(
                 children: [
                   const SizedBox(height: 16),
-                  const Text(
-                    'Location helps us find skill swap partners near you',
+                  Text(
+                    'profile_setup_page.location_help_text'.tr(),
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
+                    style: const TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
@@ -648,8 +653,8 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     icon: const Icon(Icons.location_on),
                     label: Text(
                       _location == null
-                          ? 'Enable Location'
-                          : 'Location Enabled ✓',
+                          ? 'profile_setup_page.enable_location'.tr()
+                          : 'profile_setup_page.location_enabled'.tr(),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _location != null ? Colors.green : null,
@@ -664,15 +669,15 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
               ),
             ),
             Step(
-              title: const Text('Preferences'),
+              title: Text('profile_setup_page.step_preferences'.tr()),
               isActive: _currentStep >= 2,
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 16),
-                  const Text(
-                    'Your Short Description',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  Text(
+                    'profile_setup_page.short_description_title'.tr(),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -680,10 +685,10 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       Expanded(
                         child: TextField(
                           controller: _skillController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             hintText:
-                                'Let your partner know something about you',
-                            border: OutlineInputBorder(),
+                                'profile_setup_page.short_description_hint'.tr(),
+                            border: const OutlineInputBorder(),
                           ),
                         ),
                       ),
@@ -710,7 +715,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                         Expanded(
                           child: Text(
                             _description == null || _description!.isEmpty
-                                ? 'No description added'
+                                ? 'profile_setup_page.no_description'.tr()
                                 : _description!,
                             style: TextStyle(
                               color:
@@ -731,41 +736,46 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Partner Preferences',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  Text(
+                    'profile_setup_page.partner_preferences_title'.tr(),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _preferredGender,
-                    decoration: const InputDecoration(
-                      labelText: 'Preferred Gender',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: 'profile_setup_page.preferred_gender'.tr(),
+                      border: const OutlineInputBorder(),
                     ),
-                    items: ['Male', 'Female', 'Any']
-                        .map((g) => DropdownMenuItem(value: g, child: Text(g)))
-                        .toList(),
+                    items: [
+                      DropdownMenuItem(value: 'Male', child: Text('profile_setup_page.male'.tr())),
+                      DropdownMenuItem(value: 'Female', child: Text('profile_setup_page.female'.tr())),
+                      DropdownMenuItem(value: 'Any', child: Text('profile_setup_page.any'.tr())),
+                    ],
                     onChanged: (v) => setState(() => _preferredGender = v),
                   ),
                   const SizedBox(height: 16),
                   TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'Preferred Nationality (Optional)',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: 'profile_setup_page.preferred_nationality'.tr(),
+                      border: const OutlineInputBorder(),
                     ),
                     onChanged: (v) => _preferredNationality = v,
                   ),
                   const SizedBox(height: 16),
                   TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'Preferred Religion (Optional)',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: 'profile_setup_page.preferred_religion'.tr(),
+                      border: const OutlineInputBorder(),
                     ),
                     onChanged: (v) => _preferredReligion = v,
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Age Range: ${_ageRange.start.round()} - ${_ageRange.end.round()} years',
+                    'profile_setup_page.age_range'.tr(namedArgs: {
+                      'min': _ageRange.start.round().toString(),
+                      'max': _ageRange.end.round().toString(),
+                    }),
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   RangeSlider(
@@ -781,7 +791,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Location Range: ${_locationRange.round()} km',
+                    'profile_setup_page.location_range'.tr(namedArgs: {
+                      'distance': _locationRange.round().toString(),
+                    }),
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   Slider(

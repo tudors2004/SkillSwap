@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skillswap/services/skills_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class SkillsPage extends StatefulWidget {
   const SkillsPage({super.key});
@@ -55,7 +56,7 @@ class _SkillsPageState extends State<SkillsPage> {
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An error occurred while loading skills: $e')),
+          SnackBar(content: Text('skills_page.error_loading_skills'.tr(namedArgs: {'error': e.toString()}))),
         );
       }
     }
@@ -85,7 +86,7 @@ class _SkillsPageState extends State<SkillsPage> {
   void _addNewSkillToOffer({bool isFirstTime = false}) {
     if (!isFirstTime && _skillsToOfferControllers.any((c) => c.nameController.text.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in the existing skill before adding a new one.')),
+        SnackBar(content: Text('skills_page.fill_existing_skill'.tr())),
       );
       return;
     }
@@ -97,7 +98,7 @@ class _SkillsPageState extends State<SkillsPage> {
   void _addNewSkillToLearn({bool isFirstTime = false}) {
     if (!isFirstTime && _skillsToLearnControllers.any((c) => c.nameController.text.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in the existing skill before adding a new one.')),
+        SnackBar(content: Text('skills_page.fill_existing_skill'.tr())),
       );
       return;
     }
@@ -133,7 +134,7 @@ class _SkillsPageState extends State<SkillsPage> {
     
     if (skillsToOffer.isEmpty && skillsToLearn.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add at least one skill.')),
+        SnackBar(content: Text('skills_page.add_at_least_one_skill'.tr())),
       );
       return;
     }
@@ -149,7 +150,7 @@ class _SkillsPageState extends State<SkillsPage> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Skills saved successfully!')),
+          SnackBar(content: Text('skills_page.skills_saved_success'.tr())),
         );
         await _loadSkills();
         setState(() {
@@ -159,7 +160,7 @@ class _SkillsPageState extends State<SkillsPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving skills: $e')),
+          SnackBar(content: Text('skills_page.error_saving_skills'.tr(namedArgs: {'error': e.toString()}))),
         );
       }
     } finally {
@@ -179,7 +180,7 @@ class _SkillsPageState extends State<SkillsPage> {
       appBar: isInitialSetup
           ? null
           : AppBar(
-              title: Text(_isEditing ? 'Edit Skills' : 'My Skills'),
+              title: Text(_isEditing ? 'skills_page.title_edit'.tr() : 'skills_page.title_view'.tr()),
               centerTitle: true,
               automaticallyImplyLeading: false,
               backgroundColor: Colors.transparent,
@@ -202,7 +203,7 @@ class _SkillsPageState extends State<SkillsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSkillsSection(
-            'Skills I Can Offer',
+            'skills_page.skills_to_offer'.tr(),
             _skillsToOfferControllers,
             _addNewSkillToOffer,
             _removeSkillToOffer,
@@ -210,7 +211,7 @@ class _SkillsPageState extends State<SkillsPage> {
           ),
           const SizedBox(height: 24),
           _buildSkillsSection(
-            'Skills I Want to Learn',
+            'skills_page.skills_to_learn'.tr(),
             _skillsToLearnControllers,
             _addNewSkillToLearn,
             _removeSkillToLearn,
@@ -223,7 +224,7 @@ class _SkillsPageState extends State<SkillsPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
               onPressed: _saveSkills,
-              child: const Text('Save Skills'),
+              child: Text('skills_page.save_skills'.tr()),
             ),
           ),
         ],
@@ -250,7 +251,7 @@ class _SkillsPageState extends State<SkillsPage> {
         TextButton.icon(
           onPressed: addSkill,
           icon: const Icon(Icons.add),
-          label: const Text('Add Skill'),
+          label: Text('skills_page.add_skill'.tr()),
         ),
       ],
     );
@@ -276,9 +277,9 @@ class _SkillsPageState extends State<SkillsPage> {
             ),
             TextFormField(
               controller: controller.nameController,
-              decoration: const InputDecoration(
-                labelText: 'Skill Name',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: 'skills_page.skill_name'.tr(),
+                border: const OutlineInputBorder(),
               ),
             ),
             if(showDescription)
@@ -286,9 +287,9 @@ class _SkillsPageState extends State<SkillsPage> {
             if(showDescription)
             TextFormField(
               controller: controller.descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: 'skills_page.description'.tr(),
+                border: const OutlineInputBorder(),
               ),
               maxLines: 2,
             ),
@@ -311,9 +312,9 @@ class _SkillsPageState extends State<SkillsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDisplaySection('Skills I Can Offer', skillsToOffer, showDescription: true),
+                  _buildDisplaySection('skills_page.skills_to_offer'.tr(), skillsToOffer, showDescription: true),
                   const SizedBox(height: 24),
-                  _buildDisplaySection('Skills I Want to Learn', skillsToLearn, showDescription: false),
+                  _buildDisplaySection('skills_page.skills_to_learn'.tr(), skillsToLearn, showDescription: false),
                 ],
               ),
             ),
@@ -329,7 +330,7 @@ class _SkillsPageState extends State<SkillsPage> {
                   _isEditing = true;
                 });
               },
-              child: const Text('Edit Skills'),
+              child: Text('skills_page.edit_skills'.tr()),
             ),
           ),
         ],
@@ -344,7 +345,7 @@ class _SkillsPageState extends State<SkillsPage> {
         Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         if (skills.isEmpty)
-          const Text('No skills added yet.')
+          Text('skills_page.no_skills_added_section'.tr())
         else
           ...skills.map((skill) => _buildSkillDisplay(skill['name'] ?? '', showDescription ? skill['description'] ?? '' : null)),
       ],
@@ -367,7 +368,7 @@ class _SkillsPageState extends State<SkillsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('You don\'t have any skills yet', style: TextStyle(fontSize: 18)),
+            Text('skills_page.no_skills_yet'.tr(), style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -381,10 +382,10 @@ class _SkillsPageState extends State<SkillsPage> {
                   }
                 });
               },
-              child: const Text('Add Your Skills'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-            ),
+              ),
+              child: Text('skills_page.add_your_skills'.tr()),
             ),
           ],
         ),

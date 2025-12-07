@@ -6,6 +6,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:skillswap/services/connection_service.dart';
 import 'dart:async';
+import 'package:easy_localization/easy_localization.dart';
+
+//TODO: The user cards are not showing the skills, only the nationality - needs update
+//TODO: The filter compatible only doesnt work
+//TODO: LINIA 627
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -27,15 +32,15 @@ class _ExplorePageState extends State<ExplorePage>
   bool _showCompatibleOnly = false;
 
   final _categories = [
-    'All',
-    'Programming',
-    'Languages',
-    'Music',
-    'Art',
-    'Cooking',
+    'explore_page.category_all',
+    'explore_page.category_programming',
+    'explore_page.category_languages',
+    'explore_page.category_music',
+    'explore_page.category_art',
+    'explore_page.category_cooking',
   ];
 
-  String _selectedCategory = 'All';
+  String _selectedCategory = 'explore_page.category_all';
 
   @override
   void initState() {
@@ -148,7 +153,7 @@ class _ExplorePageState extends State<ExplorePage>
             controller: _searchController,
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search),
-              hintText: 'Search skills, people, or topics',
+              hintText: 'explore_page.search_hint'.tr(),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -203,10 +208,10 @@ class _ExplorePageState extends State<ExplorePage>
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                const Text('Filter: ', style: TextStyle(fontSize: 12)),
+                Text('explore_page.filter_label'.tr(), style: const TextStyle(fontSize: 12)),
                 const SizedBox(width: 4),
                 FilterChip(
-                  label: const Text('Compatible only'),
+                  label: Text('explore_page.compatible_only'.tr()),
                   selected: _showCompatibleOnly,
                   onSelected: (selected) {
                     setState(() {
@@ -225,10 +230,10 @@ class _ExplorePageState extends State<ExplorePage>
           labelColor: theme.colorScheme.primary,
           unselectedLabelColor: theme.textTheme.bodyMedium?.color,
           indicatorColor: theme.colorScheme.primary,
-          tabs: const [
-            Tab(text: 'People'),
-            Tab(text: 'Skills'),
-            Tab(text: 'Events'),
+          tabs: [
+            Tab(text: 'explore_page.tab_people'.tr()),
+            Tab(text: 'explore_page.tab_skills'.tr()),
+            Tab(text: 'explore_page.tab_events'.tr()),
           ],
         ),
 
@@ -237,8 +242,6 @@ class _ExplorePageState extends State<ExplorePage>
             controller: _tabController,
             children: [
               _buildPeopleTab(),
-              _buildSkillsTab(),
-              _buildEventsTab(),
             ],
           ),
         ),
@@ -261,13 +264,19 @@ class _ExplorePageState extends State<ExplorePage>
     if (myPrefs['gender'] != null &&
         myPrefs['gender'] != 'Any' &&
         otherUser['gender'] != myPrefs['gender']) {
-      reasons.add('Gender mismatch: Expected ${myPrefs['gender']}, found ${otherUser['gender']}');
+      reasons.add('explore_page.gender_mismatch'.tr(namedArgs: {
+        'expected': myPrefs['gender'],
+        'found': otherUser['gender']
+      }));
     }
 
     if (myPrefs['nationality'] != null &&
         myPrefs['nationality'] != 'Any' &&
         otherUser['nationality'] != myPrefs['nationality']) {
-      reasons.add('Nationality mismatch: Expected ${myPrefs['nationality']}, found ${otherUser['nationality']}');
+      reasons.add('explore_page.nationality_mismatch'.tr(namedArgs: {
+        'expected': myPrefs['nationality'],
+        'found': otherUser['nationality']
+      }));
     }
 
     if (myPrefs['locationRange'] != null &&
@@ -280,7 +289,10 @@ class _ExplorePageState extends State<ExplorePage>
         );
 
         if (distance > (myPrefs['locationRange'] as num)) {
-          reasons.add('Too far: ${distance.toStringAsFixed(0)} km away (limit: ${myPrefs['locationRange']} km)');
+          reasons.add('explore_page.too_far'.tr(namedArgs: {
+            'distance': distance.toStringAsFixed(0),
+            'limit': myPrefs['locationRange'].toString()
+          }));
         }
       } catch (e) {
         print('Error calculating distance: $e');
@@ -295,7 +307,11 @@ class _ExplorePageState extends State<ExplorePage>
         final max = (ageRangeMap['max'] as num?)?.toInt() ?? 100;
 
         if (age < min || age > max) {
-          reasons.add('Age outside range: $age years (expected $min-$max)');
+          reasons.add('explore_page.age_outside_range'.tr(namedArgs: {
+            'age': age.toString(),
+            'min': min.toString(),
+            'max': max.toString()
+          }));
         }
       } catch (e) {
         print('Error checking age: $e');
@@ -306,7 +322,10 @@ class _ExplorePageState extends State<ExplorePage>
         myPrefs['religion'] != 'Any' &&
         otherUser['religion'] != null &&
         otherUser['religion'] != myPrefs['religion']) {
-      reasons.add('Religion preference: Expected ${myPrefs['religion']}, found ${otherUser['religion']}');
+      reasons.add('explore_page.religion_preference'.tr(namedArgs: {
+        'expected': myPrefs['religion'],
+        'found': otherUser['religion']
+      }));
     }
 
     return {
@@ -381,8 +400,8 @@ class _ExplorePageState extends State<ExplorePage>
     }
 
     if (_allUsers.isEmpty) {
-      return const Center(
-        child: Text('No users found.\nBe the first to complete your profile!'),
+      return Center(
+        child: Text('explore_page.no_users_found'.tr()),
       );
     }
 
@@ -395,9 +414,10 @@ class _ExplorePageState extends State<ExplorePage>
         }
       }
 
-      if (_selectedCategory != 'All') {
+      if (_selectedCategory != 'explore_page.category_all') {
         final skills = (user['skills'] as List?)?.cast<String>() ?? [];
-        if (!skills.any((s) => s.toLowerCase().contains(_selectedCategory.toLowerCase()))) {
+        final categoryName = _selectedCategory.split('.').last.replaceAll('category_', '');
+        if (!skills.any((s) => s.toLowerCase().contains(categoryName.toLowerCase()))) {
           return false;
         }
       }
@@ -480,18 +500,20 @@ class _ExplorePageState extends State<ExplorePage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      user['name'] ?? 'Unknown',
+                      user['name'] ?? 'explore_page.unknown'.tr(),
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Teaches: ${(user['skills'] as List?)?.take(2).join(', ') ?? 'N/A'}',
+                      'explore_page.teaches'.tr(namedArgs: {
+                        'skills': (user['skills'] as List?)?.take(2).join(', ') ?? 'explore_page.na'.tr()
+                      }),
                       style: theme.textTheme.bodySmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      user['nationality'] ?? 'Unknown location',
+                      user['nationality'] ?? 'explore_page.unknown_location'.tr(),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
                       ),
@@ -505,7 +527,9 @@ class _ExplorePageState extends State<ExplorePage>
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '${reasons.length} incompatibility issue${reasons.length > 1 ? 's' : ''}',
+                          reasons.length == 1
+                            ? 'explore_page.incompatibility_issues'.tr(namedArgs: {'count': reasons.length.toString()})
+                            : 'explore_page.incompatibility_issues_plural'.tr(namedArgs: {'count': reasons.length.toString()}),
                           style: TextStyle(
                             color: Colors.red[700],
                             fontSize: 11,
@@ -549,7 +573,7 @@ class _ExplorePageState extends State<ExplorePage>
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                isCompatible ? 'Compatible Match!' : 'Compatibility Issues',
+                isCompatible ? 'explore_page.compatible_match'.tr() : 'explore_page.compatibility_issues'.tr(),
                 style: const TextStyle(fontSize: 18),
               ),
             ),
@@ -561,20 +585,20 @@ class _ExplorePageState extends State<ExplorePage>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                user['name'] ?? 'Unknown',
+                user['name'] ?? 'explore_page.unknown'.tr(),
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 4),
-              Text('${user['nationality']} • ${(user['skills'] as List?)?.join(', ') ?? 'No skills'}'),
+              Text('${user['nationality']} • ${(user['skills'] as List?)?.join(', ') ?? 'explore_page.no_skills'.tr()}'),
               const SizedBox(height: 16),
               if (isCompatible) ...[
-                const Text('✓ This user matches all your preferences!'),
-                const Text('✓ Location is within your range'),
-                const Text('✓ Profile meets all your criteria'),
+                Text('explore_page.match_all_preferences'.tr()),
+                Text('explore_page.location_within_range'.tr()),
+                Text('explore_page.profile_meets_criteria'.tr()),
               ] else ...[
-                const Text(
-                  'Issues found:',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+                Text(
+                  'explore_page.issues_found'.tr(),
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
                 ),
                 const SizedBox(height: 8),
                 ...reasons.map((reason) => Padding(
@@ -595,7 +619,7 @@ class _ExplorePageState extends State<ExplorePage>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text('explore_page.close'.tr()),
           ),
           if (status == null)
             ElevatedButton(
@@ -604,118 +628,28 @@ class _ExplorePageState extends State<ExplorePage>
                 if (context.mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Connection request sent!')),
+                    SnackBar(content: Text('explore_page.connection_request_sent'.tr())),
                   );
                 }
               },
-              child: const Text('Connect'),
+              child: Text('explore_page.connect'.tr()),
             )
           else if (status == 'pending')
             ElevatedButton(
               onPressed: null,
-              child: const Text('Pending'),
+              child: Text('explore_page.pending'.tr()),
             )
           else if (status == 'accepted')
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  // TODO: Navigate to chat
+                  // TODO: NAVIGATE TO THE CHAT !!!
                 },
-                child: const Text('Chat'),
+                child: Text('explore_page.chat'.tr()),
               ),
         ],
       ),
     );
   }
 
-
-
-
-  // TODO: OPTIONAL FUNCTIONS
-
-
-  Widget _buildSkillsTab() {
-    final skills = [
-      {
-        'title': 'Spoken English for beginners',
-        'category': 'Languages',
-        'level': 'Beginner',
-        'count': 32,
-      },
-      {
-        'title': 'Mobile app development with Flutter',
-        'category': 'Programming',
-        'level': 'Intermediate',
-        'count': 18,
-      },
-      {
-        'title': 'Portrait photography basics',
-        'category': 'Art',
-        'level': 'Beginner',
-        'count': 12,
-      },
-    ];
-
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: skills.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final s = skills[index];
-        return Card(
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: ListTile(
-            leading: const Icon(Icons.star_outline),
-            title: Text(s['title'] as String),
-            subtitle: Text(
-              '${s['category']} • ${s['level']} • ${(s['count'] as int)} people teach this',
-            ),
-            onTap: () {
-              // \TODO: Show list of people teaching this skill
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildEventsTab() {
-    final events = [
-      {
-        'title': 'Online language exchange meetup',
-        'date': 'Sat, 10 May',
-        'location': 'Online',
-      },
-      {
-        'title': 'Local photography walk',
-        'date': 'Sun, 18 May',
-        'location': 'City center',
-      },
-    ];
-
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: events.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final e = events[index];
-        return Card(
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: ListTile(
-            leading: const Icon(Icons.event_outlined),
-            title: Text(e['title'] as String),
-            subtitle: Text('${e['date']} • ${e['location']}'),
-            trailing: TextButton(
-              onPressed: () {
-                // \TODO: Open event details / join
-              },
-              child: const Text('Details'),
-            ),
-          ),
-        );
-      },
-    );
-  }
 }

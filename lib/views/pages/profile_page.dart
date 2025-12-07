@@ -3,6 +3,7 @@ import 'package:skillswap/services/profile_service.dart';
 import 'profile_setup_page.dart';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:easy_localization/easy_localization.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -56,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading profile: $e')),
+          SnackBar(content: Text('profile_page.error_loading'.tr(namedArgs: {'error': e.toString()}))),
         );
       }
     }
@@ -67,16 +68,15 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Complete Your Profile'),
-        content: const Text(
-            'Finish setting up your profile to start connecting with others!'),
+        title: Text('complete_profile'.tr()),
+        content: Text('finish_profile_message'.tr()),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _navigateToProfileSetup();
             },
-            child: const Text('Get Started'),
+            child: Text('get_started'.tr()),
           ),
         ],
       ),
@@ -139,11 +139,11 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Unable to load profile'),
+            Text('profile_page.unable_to_load'.tr()),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadProfile,
-              child: const Text('Retry'),
+              child: Text('profile_page.retry'.tr()),
             ),
           ],
         ),
@@ -158,7 +158,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildProfilePicture(context, _profileData!['profilePictureBase64']),
           const SizedBox(height: 16),
           Text(
-            _profileData!['name'] ?? 'No Name',
+            _profileData!['name'] ?? 'profile_page.no_name'.tr(),
             style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
@@ -176,7 +176,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ElevatedButton.icon(
             onPressed: _navigateToProfileSetup,
             icon: const Icon(Icons.edit),
-            label: const Text('Edit Profile'),
+            label: Text('edit_profile'.tr()),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
@@ -195,16 +195,16 @@ class _ProfilePageState extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Personal Information',
+              'profile_page.personal_information'.tr(),
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Divider(),
-            _buildInfoRow(context, Icons.person, 'Gender', _profileData!['gender']),
-            _buildInfoRow(context, Icons.flag, 'Nationality', _profileData!['nationality']),
-            _buildInfoRow(context, Icons.phone, 'Phone', _profileData!['phoneNumber']),
-            _buildInfoRow(context, Icons.description, 'Description', _profileData!['description']),
+            _buildInfoRow(context, Icons.person, 'gender'.tr(), _profileData!['gender']),
+            _buildInfoRow(context, Icons.flag, 'nationality'.tr(), _profileData!['nationality']),
+            _buildInfoRow(context, Icons.phone, 'profile_page.phone'.tr(), _profileData!['phoneNumber']),
+            _buildInfoRow(context, Icons.description, 'profile_page.description'.tr(), _profileData!['description']),
             if (_profileData!['location'] != null)
-              _buildInfoRow(context, Icons.location_on, 'Location', 'Enabled'),
+              _buildInfoRow(context, Icons.location_on, 'location'.tr(), 'profile_page.enabled'.tr()),
           ],
         ),
       ),
@@ -226,7 +226,7 @@ class _ProfilePageState extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Skills',
+              'skills'.tr(),
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Divider(),
@@ -262,29 +262,34 @@ class _ProfilePageState extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Partner Preferences',
+              'profile_page.partner_preferences'.tr(),
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Divider(),
             if (preferences['gender'] != null)
-              _buildInfoRow(context, Icons.wc, 'Gender', preferences['gender']),
+              _buildInfoRow(context, Icons.wc, 'gender'.tr(), preferences['gender']),
             if (preferences['nationality'] != null)
-              _buildInfoRow(context, Icons.flag, 'Nationality', preferences['nationality']),
+              _buildInfoRow(context, Icons.flag, 'nationality'.tr(), preferences['nationality']),
             if (preferences['religion'] != null)
-              _buildInfoRow(context, Icons.church, 'Religion', preferences['religion']),
+              _buildInfoRow(context, Icons.church, 'profile_page.religion'.tr(), preferences['religion']),
             if (preferences['ageRange'] != null)
               _buildInfoRow(
                 context,
                 Icons.calendar_today,
-                'Age Range',
-                '${preferences['ageRange']['min']?.round()} - ${preferences['ageRange']['max']?.round()} years',
+                'ageRange'.tr(),
+                'profile_page.age_range'.tr(namedArgs: {
+                  'min': preferences['ageRange']['min']?.round().toString() ?? '0',
+                  'max': preferences['ageRange']['max']?.round().toString() ?? '0'
+                }),
               ),
             if (preferences['locationRange'] != null)
               _buildInfoRow(
                 context,
                 Icons.location_searching,
-                'Distance',
-                '${preferences['locationRange']?.round()} km',
+                'locationRange'.tr(),
+                'profile_page.distance'.tr(namedArgs: {
+                  'distance': preferences['locationRange']?.round().toString() ?? '0'
+                }),
               ),
           ],
         ),

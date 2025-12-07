@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:skillswap/services/connection_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:easy_localization/easy_localization.dart';
+
+//TODO: Add timestamp to the chats - nu stiu daca pe pagina asta sau pe chat los
 
 class ChatPage extends StatefulWidget {
   final String chatId;
@@ -30,7 +33,7 @@ class _ChatPageState extends State<ChatPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.otherUser['name'] ?? 'Chat'),
+          title: Text(widget.otherUser['name'] ?? 'chat.title'.tr()),
       ),
       body: Column(
         children: [
@@ -100,8 +103,8 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: TextField(
               controller: _messageController,
-              decoration: const InputDecoration(
-                hintText: 'Type a message...',
+              decoration: InputDecoration(
+                hintText: 'chat.type_message'.tr(),
               ),
             ),
           ),

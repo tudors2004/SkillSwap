@@ -18,7 +18,7 @@ Future<void> main() async {
   await EasyLocalization.ensureInitialized();
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale('en'), Locale('fr'), Locale('de')],
+      supportedLocales: const [Locale('en'), Locale('fr'), Locale('de'), Locale('es')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
       child: const SkillSwapApp(),

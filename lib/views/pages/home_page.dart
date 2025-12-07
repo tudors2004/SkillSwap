@@ -15,6 +15,8 @@ import 'package:skillswap/views/pages/chat_list_page.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:skillswap/views/pages/help_support_page.dart';
 
+//TODO: Trebuie inlocuit home page asta cu explore ul actual
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 

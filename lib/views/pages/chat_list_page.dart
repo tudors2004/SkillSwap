@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import 'package:skillswap/views/pages/chat_page.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
@@ -23,7 +24,7 @@ class _ChatListPageState extends State<ChatListPage> {
         stream: _connectionService.getChats(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('Something went wrong: ${snapshot.error}'));
+            return Center(child: Text('chat_list.error_loading'.tr(namedArgs: {'error': snapshot.error.toString()})));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -31,8 +32,8 @@ class _ChatListPageState extends State<ChatListPage> {
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text('You have no connections yet.'),
+            return Center(
+              child: Text('chat_list.no_connections'.tr()),
             );
           }
 
@@ -50,19 +51,19 @@ class _ChatListPageState extends State<ChatListPage> {
               return FutureBuilder<Map<String, dynamic>?>(                future: _getUserData(otherUserId),
                 builder: (context, userSnapshot) {
                   if (userSnapshot.connectionState == ConnectionState.waiting) {
-                    return const ListTile(leading: CircleAvatar(), title: Text('Loading...'));
+                    return ListTile(leading: const CircleAvatar(), title: Text('chat_list.loading'.tr()));
                   }
 
                   if (!userSnapshot.hasData) {
-                    return const ListTile(leading: CircleAvatar(), title: Text('User not found'));
+                    return ListTile(leading: const CircleAvatar(), title: Text('chat_list.user_not_found'.tr()));
                   }
 
                   final userData = userSnapshot.data!;
-                  final userName = userData['name'] ?? 'Unknown User';
+                  final userName = userData['name'] ?? 'chat_list.unknown_user'.tr();
                   final profilePicture = userData['profilePictureBase64'] as String?;
 
                   final lastMessage = chat['lastMessage'] as Map<String, dynamic>?;
-                  final lastMessageText = lastMessage?['text'] ?? 'No messages yet';
+                  final lastMessageText = lastMessage?['text'] ?? 'chat_list.no_messages'.tr();
                   bool isUnread = false;
                   final currentUserId = _auth.currentUser?.uid;
 

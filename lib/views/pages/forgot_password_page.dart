@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -15,7 +16,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Future<void> _sendResetEmail() async {
     if (_emailController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email')),
+        SnackBar(content: Text('forgot_password_page.error_empty_email'.tr())),
       );
       return;
     }
@@ -29,14 +30,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password reset email sent!')),
+          SnackBar(content: Text('forgot_password_page.success_message'.tr())),
         );
         Navigator.pop(context);
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? 'Failed to send reset email')),
+          SnackBar(content: Text(e.message ?? 'forgot_password_page.error_default'.tr())),
         );
       }
     } finally {
@@ -48,7 +49,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Forgot Password'),
+        title: Text('forgot_password_page.title'.tr()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -62,8 +63,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               color: Colors.blue,
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Reset Password',
+            Text(
+              'forgot_password_page.heading'.tr(),
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -71,19 +72,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Enter your email address and we\'ll send you a link to reset your password',
+            Text(
+              'forgot_password_page.description'.tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
+              style: const TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 32),
             TextField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.email),
+              decoration: InputDecoration(
+                labelText: 'forgot_password_page.email_label'.tr(),
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.email),
               ),
             ),
             const SizedBox(height: 24),
@@ -98,7 +99,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 width: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-                  : const Text('Send Reset Link'),
+                  : Text('forgot_password_page.send_button'.tr()),
             ),
           ],
         ),
