@@ -9,8 +9,6 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:skillswap/views/pages/chat_list_page.dart';
 
-//TODO: The filter compatible only doesnt work
-
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
 
@@ -455,6 +453,16 @@ class _ExplorePageState extends State<ExplorePage>
         }
       }
 
+      // --- FIX IS HERE ---
+      if (_showCompatibleOnly) {
+        final compatibility = _checkCompatibility(user);
+        // If user is not compatible, filter them out
+        if (compatibility['isCompatible'] == false) {
+          return false;
+        }
+      }
+      // -------------------
+
       return true;
     }).toList();
 
@@ -477,6 +485,7 @@ class _ExplorePageState extends State<ExplorePage>
       },
     );
   }
+
   Widget _buildUserCard(Map<String, dynamic> user, Map<String, dynamic> compatibility) {
     final isCompatible = compatibility['isCompatible'] as bool;
     final reasons = compatibility['reasons'] as List<String>;
@@ -677,18 +686,18 @@ class _ExplorePageState extends State<ExplorePage>
               child: Text('explore_page.pending'.tr()),
             )
           else if (status == 'accepted')
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ChatListPage(),
-                  ),
-                );
-              },
-              child: Text('Message'),
-            ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ChatListPage(),
+                    ),
+                  );
+                },
+                child: Text('Message'),
+              ),
         ],
       ),
     );
