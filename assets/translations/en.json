@@ -237,7 +237,13 @@
   },
   "chat": {
     "title": "Chat",
-    "type_message": "Type a message..."
+    "type_message": "Type a message...",
+    "no_phone_number": "This user does not have a phone number.",
+    "call_confirmation_title": "Make a call",
+    "call_confirmation_body": "Do you want to call {name}?",
+    "cancel": "Cancel",
+    "call": "Call",
+    "cannot_launch_dialer": "Could not launch phone dialer."
   },
 
   "chat_list": {
