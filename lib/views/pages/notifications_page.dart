@@ -4,6 +4,7 @@ import 'package:skillswap/services/exchange_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -15,6 +16,7 @@ class NotificationsPage extends StatefulWidget {
 class _NotificationsPageState extends State<NotificationsPage> {
   final ConnectionService _connectionService = ConnectionService();
   final ExchangeService _exchangeService = ExchangeService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -135,19 +137,58 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   void _acceptConnection(Map<String, dynamic> notification, String senderId) async {
-    await _connectionService.acceptConnectionRequest(notification['requestId'], senderId);
-    await _connectionService.deleteNotification(notification['id']);
+    try {
+      final currentUserId = _auth.currentUser?.uid;
+      if (currentUserId == null) throw Exception('User not authenticated');
+
+      // Construct the requestId from senderId and currentUserId
+      final requestId = '${senderId}_$currentUserId';
+
+      await _connectionService.acceptConnectionRequest(requestId, senderId);
+      await _connectionService.deleteNotification(notification['id']);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('notifications_page.connection_accepted'.tr())),
+        );
+      }
+    } catch (e) {
+      print('Error accepting connection: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('notifications_page.error_accepting'.tr())),
+        );
+      }
+    }
   }
 
+
   void _declineConnection(Map<String, dynamic> notification) async {
-    await _connectionService.declineConnectionRequest(notification['requestId']);
-    await _connectionService.deleteNotification(notification['id']);
+    try {
+      await _connectionService.declineConnectionRequest(notification['requestId']);
+      await _connectionService.deleteNotification(notification['id']);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('notifications_page.error_declining')),
+        );
+      }
+    }
   }
 
   void _confirmExchange(Map<String, dynamic> notification) async {
-    await _exchangeService.markExchangeCompleted(notification['exchangeId']);
-    await _connectionService.deleteNotification(notification['id']);
+    try {
+      await _exchangeService.markExchangeCompleted(notification['exchangeId']);
+      await _connectionService.deleteNotification(notification['id']);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('notifications_page.error_confirming')),
+        );
+      }
+    }
   }
+
 
   Future<Map<String, dynamic>?> _getUserData(String userId) async {
     final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();

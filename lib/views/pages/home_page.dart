@@ -290,7 +290,7 @@ class HomeContent extends StatelessWidget {
             title: 'Add learning goal',
             color: primary.withOpacity(0.85),
             onTap: () {
-              //TODO: Navigate to "Add Skill to Learn"
+
             },
           ),
         ),

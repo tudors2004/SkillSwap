@@ -6,6 +6,7 @@ class ConnectionService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   User? get _currentUser => _auth.currentUser;
+  String? get currentUserId => _currentUser?.uid;
 
   Future<void> sendConnectionRequest(String receiverId) async {
     final currentUserId = _currentUser?.uid;
@@ -25,6 +26,7 @@ class ConnectionService {
       type: 'connection_request',
       title: 'New Connection Request',
       message: 'You received a connection request.',
+      requestId: requestId,
     );
   }
 
@@ -32,24 +34,43 @@ class ConnectionService {
     final currentUserId = _currentUser?.uid;
     if (currentUserId == null) throw Exception('Not authenticated');
 
-    await _firestore.collection('connection_requests').doc(requestId).update({
-      'status': 'accepted',
-    });
+    print('DEBUG: Accepting request - requestId: $requestId, senderId: $senderId, currentUserId: $currentUserId');
 
-    final chatId = _getChatId(senderId, currentUserId);
-    await _firestore.collection('chats').doc(chatId).set({
-      'users': [senderId, currentUserId],
-      'createdAt': FieldValue.serverTimestamp(),
-      'lastMessage': null,
-    });
+    try {
+      // Check if document exists
+      final docSnapshot = await _firestore.collection('connection_requests').doc(requestId).get();
+      print('DEBUG: Document exists: ${docSnapshot.exists}');
+      print('DEBUG: Document data: ${docSnapshot.data()}');
 
-    await _sendNotification(
-      userId: senderId,
-      type: 'connection_accepted',
-      title: 'Connection Accepted',
-      message: 'Your connection request was accepted.',
-    );
+      await _firestore.collection('connection_requests').doc(requestId).update({
+        'status': 'accepted',
+      });
+      print('DEBUG: Status updated successfully');
+
+      final chatId = _getChatId(senderId, currentUserId);
+      print('DEBUG: Creating chat with ID: $chatId');
+
+      await _firestore.collection('chats').doc(chatId).set({
+        'users': [senderId, currentUserId],
+        'createdAt': FieldValue.serverTimestamp(),
+        'lastMessage': null,
+      });
+      print('DEBUG: Chat created successfully');
+
+      await _sendNotification(
+        userId: senderId,
+        type: 'connection_accepted',
+        title: 'Connection Accepted',
+        message: 'Your connection request was accepted.',
+      );
+      print('DEBUG: Notification sent successfully');
+    } catch (e, stackTrace) {
+      print('DEBUG: Error in acceptConnectionRequest: $e');
+      print('DEBUG: Stack trace: $stackTrace');
+      rethrow;
+    }
   }
+
 
   Future<void> declineConnectionRequest(String requestId) async {
     await _firestore.collection('connection_requests').doc(requestId).update({
@@ -90,7 +111,12 @@ class ConnectionService {
         .add(message);
 
     await _firestore.collection('chats').doc(chatId).update({
-      'lastMessage': message,
+      'lastMessage': {
+        'senderId': currentUserId,
+        'text': text,
+        'readBy': [currentUserId],
+        'timestamp': FieldValue.serverTimestamp(),
+      },
     });
   }
 
@@ -101,7 +127,9 @@ class ConnectionService {
         .collection('messages')
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+        .map((snapshot) => snapshot.docs
+        .map((doc) => {'id': doc.id, ...doc.data()})
+        .toList());
   }
 
     Future<void> markMessageAsRead(String chatId) async {
@@ -180,10 +208,12 @@ class ConnectionService {
     required String type,
     required String title,
     required String message,
+    String? requestId,
+    String? exchangeId,
   }) async {
     final currentUserId = _currentUser?.uid;
 
-    await _firestore.collection('notifications').add({
+    final notificationData = {
       'userId': userId,
       'senderId': currentUserId,
       'type': type,
@@ -191,7 +221,17 @@ class ConnectionService {
       'message': message,
       'read': false,
       'createdAt': FieldValue.serverTimestamp(),
-    });
+    };
+
+    if (requestId != null) {
+      notificationData['requestId'] = requestId;
+    }
+
+    if (exchangeId != null) {
+      notificationData['exchangeId'] = exchangeId;
+    }
+
+    await _firestore.collection('notifications').add(notificationData);
   }
 
   String _getChatId(String userId1, String userId2) {

@@ -4,10 +4,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:skillswap/providers/theme_provider.dart';
 import 'package:skillswap/providers/settings_provider.dart';
 import 'package:skillswap/views/pages/change_password_page.dart';
-import 'package:skillswap/services/settings_service.dart';
 
 //TODO: Private account - implement logic or remove!! Oricum nu pot vedea profilul cuiva
-//TODO: Nu stiu dc e unused settings service :(
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});

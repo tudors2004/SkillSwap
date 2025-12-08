@@ -194,7 +194,8 @@
     "just_now": "Gerade eben",
     "minutes_ago": "vor {minutes}m",
     "hours_ago": "vor {hours}h",
-    "days_ago": "vor {days}T"
+    "days_ago": "vor {days}T",
+    "error_accepting": "Fehler beim Bestätigen der Benachrichtigung"
   },
   "forgot_password_page": {
     "title": "Passwort vergessen",

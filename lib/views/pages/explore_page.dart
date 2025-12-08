@@ -7,10 +7,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:skillswap/services/connection_service.dart';
 import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:skillswap/views/pages/chat_list_page.dart';
 
-//TODO: The user cards are not showing the skills, only the nationality - needs update
 //TODO: The filter compatible only doesnt work
-//TODO: LINIA 627
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -30,7 +29,6 @@ class _ExplorePageState extends State<ExplorePage>
   List<Map<String, dynamic>> _allUsers = [];
   bool _isLoadingUsers = true;
   bool _showCompatibleOnly = false;
-
   final _categories = [
     'explore_page.category_all',
     'explore_page.category_programming',
@@ -65,16 +63,33 @@ class _ExplorePageState extends State<ExplorePage>
     _usersSubscription = FirebaseFirestore.instance
         .collection('users')
         .snapshots()
-        .listen((snapshot) {
+        .listen((snapshot) async {
       final users = <Map<String, dynamic>>[];
 
       for (var doc in snapshot.docs) {
         if (doc.id == currentUser.uid) continue;
 
         final data = doc.data();
+
+        // Fetch skills from subcollection
+        final skillsDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(doc.id)
+            .collection('skills')
+            .doc('userSkills')
+            .get();
+
+        List<String> skillNames = [];
+        if (skillsDoc.exists) {
+          final skillsData = skillsDoc.data() as Map<String, dynamic>;
+          final skillsToOffer = (skillsData['skillsToOffer'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+          skillNames = skillsToOffer.map((skill) => skill['name'] as String).toList();
+        }
+
         users.add({
           'uid': doc.id,
           ...data,
+          'skills': skillNames,
         });
       }
 
@@ -85,6 +100,7 @@ class _ExplorePageState extends State<ExplorePage>
       }
     });
   }
+
 
   Future<void> _loadData() async {
     try {
@@ -123,10 +139,24 @@ class _ExplorePageState extends State<ExplorePage>
 
         final data = doc.data() as Map<String, dynamic>?;
         if (data == null) continue;
+        final skillsDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(doc.id)
+            .collection('skills')
+            .doc('userSkills')
+            .get();
+
+        List<String> skillNames = [];
+        if (skillsDoc.exists) {
+          final skillsData = skillsDoc.data() as Map<String, dynamic>;
+          final skillsToOffer = (skillsData['skillsToOffer'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+          skillNames = skillsToOffer.map((skill) => skill['name'] as String).toList();
+        }
 
         users.add({
           'uid': doc.id,
           ...data,
+          'skills': skillNames,
         });
       }
 
@@ -189,7 +219,7 @@ class _ExplorePageState extends State<ExplorePage>
               final cat = _categories[index];
               final selected = cat == _selectedCategory;
               return ChoiceChip(
-                label: Text(cat),
+                label: Text(cat.tr()),
                 selected: selected,
                 onSelected: (_) {
                   setState(() {
@@ -242,6 +272,9 @@ class _ExplorePageState extends State<ExplorePage>
             controller: _tabController,
             children: [
               _buildPeopleTab(),
+              //TODO: Implement this
+              Center(child: Text('explore_page.skills_coming_soon'.tr())),
+              Center(child: Text('explore_page.events_coming_soon'.tr())),
             ],
           ),
         ),
@@ -448,6 +481,7 @@ class _ExplorePageState extends State<ExplorePage>
     final isCompatible = compatibility['isCompatible'] as bool;
     final reasons = compatibility['reasons'] as List<String>;
     final theme = Theme.of(context);
+    final skills = (user['skills'] as List?)?.cast<String>() ?? [];
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -504,14 +538,17 @@ class _ExplorePageState extends State<ExplorePage>
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'explore_page.teaches'.tr(namedArgs: {
-                        'skills': (user['skills'] as List?)?.take(2).join(', ') ?? 'explore_page.na'.tr()
-                      }),
-                      style: theme.textTheme.bodySmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    if (skills.isNotEmpty)
+                      Text(
+                        skills.take(3).join(', '),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    const SizedBox(height: 2),
                     Text(
                       user['nationality'] ?? 'explore_page.unknown_location'.tr(),
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -528,8 +565,8 @@ class _ExplorePageState extends State<ExplorePage>
                         ),
                         child: Text(
                           reasons.length == 1
-                            ? 'explore_page.incompatibility_issues'.tr(namedArgs: {'count': reasons.length.toString()})
-                            : 'explore_page.incompatibility_issues_plural'.tr(namedArgs: {'count': reasons.length.toString()}),
+                              ? 'explore_page.incompatibility_issues'.tr(namedArgs: {'count': reasons.length.toString()})
+                              : 'explore_page.incompatibility_issues_plural'.tr(namedArgs: {'count': reasons.length.toString()}),
                           style: TextStyle(
                             color: Colors.red[700],
                             fontSize: 11,
@@ -640,16 +677,20 @@ class _ExplorePageState extends State<ExplorePage>
               child: Text('explore_page.pending'.tr()),
             )
           else if (status == 'accepted')
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // TODO: NAVIGATE TO THE CHAT !!!
-                },
-                child: Text('explore_page.chat'.tr()),
-              ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ChatListPage(),
+                  ),
+                );
+              },
+              child: Text('Message'),
+            ),
         ],
       ),
     );
   }
-
 }

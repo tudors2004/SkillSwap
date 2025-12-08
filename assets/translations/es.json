@@ -206,7 +206,8 @@
     "just_now": "Justo ahora",
     "minutes_ago": "hace {minutes}m",
     "hours_ago": "hace {hours}h",
-    "days_ago": "hace {days}d"
+    "days_ago": "hace {days}d",
+    "error_accepting": "Error al aceptar la notificación"
   },
 
   "forgot_password_page": {

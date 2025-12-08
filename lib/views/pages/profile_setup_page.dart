@@ -9,7 +9,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 //TODO: Solve Add Profile Picture visual bug
-//TODO: Translation in french and german for the profile setup page
+//TODO: MAKE PREFERED NATIONALITY MANDATORY
 
 class ProfileSetupPage extends StatefulWidget {
   const ProfileSetupPage({super.key});

@@ -198,7 +198,8 @@
     "just_now": "À l'instant",
     "minutes_ago": "il y a {minutes}m",
     "hours_ago": "il y a {hours}h",
-    "days_ago": "il y a {days}j"
+    "days_ago": "il y a {days}j",
+    "error_accepting": "Erreur lors de la confirmation de la notification"
   },
 
   "forgot_password_page": {

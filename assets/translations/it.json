@@ -206,7 +206,8 @@
     "just_now": "Proprio ora",
     "minutes_ago": "{minutes}m fa",
     "hours_ago": "{hours}h fa",
-    "days_ago": "{days}g fa"
+    "days_ago": "{days}g fa",
+    "error_accepting": "Errore durante la conferma della notifica"
   },
 
   "forgot_password_page": {

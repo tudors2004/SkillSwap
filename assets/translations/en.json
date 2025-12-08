@@ -220,7 +220,8 @@
     "just_now": "Just now",
     "minutes_ago": "{minutes}m ago",
     "hours_ago": "{hours}h ago",
-    "days_ago": "{days}d ago"
+    "days_ago": "{days}d ago",
+    "error_accepting": "Error accepting notification"
   },
 
   "forgot_password_page": {
