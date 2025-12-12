@@ -78,16 +78,20 @@ class _ExplorePageState extends State<ExplorePage>
             .get();
 
         List<String> skillNames = [];
+        List<String> skillsToLearnNames = [];
         if (skillsDoc.exists) {
           final skillsData = skillsDoc.data() as Map<String, dynamic>;
           final skillsToOffer = (skillsData['skillsToOffer'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+          final skillsToLearn = (skillsData['skillsToLearn'] as List?)?.cast<Map<String, dynamic>>() ?? [];
           skillNames = skillsToOffer.map((skill) => skill['name'] as String).toList();
+          skillsToLearnNames = skillsToLearn.map((skill) => skill['name'] as String).toList();
         }
 
         users.add({
           'uid': doc.id,
           ...data,
           'skills': skillNames,
+          'skillsToLearn': skillsToLearnNames,
         });
       }
 
@@ -145,16 +149,20 @@ class _ExplorePageState extends State<ExplorePage>
             .get();
 
         List<String> skillNames = [];
+        List<String> skillsToLearnNames = [];
         if (skillsDoc.exists) {
           final skillsData = skillsDoc.data() as Map<String, dynamic>;
           final skillsToOffer = (skillsData['skillsToOffer'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+          final skillsToLearn = (skillsData['skillsToLearn'] as List?)?.cast<Map<String, dynamic>>() ?? [];
           skillNames = skillsToOffer.map((skill) => skill['name'] as String).toList();
+          skillsToLearnNames = skillsToLearn.map((skill) => skill['name'] as String).toList();
         }
 
         users.add({
           'uid': doc.id,
           ...data,
           'skills': skillNames,
+          'skillsToLearn': skillsToLearnNames,
         });
       }
 
@@ -270,8 +278,7 @@ class _ExplorePageState extends State<ExplorePage>
             controller: _tabController,
             children: [
               _buildPeopleTab(),
-              //TODO: Implement this
-              Center(child: Text('explore_page.skills_coming_soon'.tr())),
+              _buildSkillsTab(),
               Center(child: Text('explore_page.events_coming_soon'.tr())),
             ],
           ),
@@ -483,6 +490,196 @@ class _ExplorePageState extends State<ExplorePage>
         final compatibility = _checkCompatibility(user);
         return _buildUserCard(user, compatibility);
       },
+    );
+  }
+
+  Widget _buildSkillsTab() {
+    final theme = Theme.of(context);
+
+    if (_isLoadingUsers) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_allUsers.isEmpty) {
+      return Center(
+        child: Text('explore_page.no_users_found'.tr()),
+      );
+    }
+
+    // Build a map of skills to learn -> list of users who want to learn that skill
+    final Map<String, List<Map<String, dynamic>>> skillsToLearnMap = {};
+
+    for (final user in _allUsers) {
+      final skillsToLearn = (user['skillsToLearn'] as List?)?.cast<String>() ?? [];
+      for (final skill in skillsToLearn) {
+        if (!skillsToLearnMap.containsKey(skill)) {
+          skillsToLearnMap[skill] = [];
+        }
+        skillsToLearnMap[skill]!.add(user);
+      }
+    }
+
+    // Filter skills based on search query
+    var filteredSkills = skillsToLearnMap.keys.toList();
+    if (_searchQuery.isNotEmpty) {
+      filteredSkills = filteredSkills
+          .where((skill) => skill.toLowerCase().contains(_searchQuery))
+          .toList();
+    }
+
+    // Filter by category if selected
+    if (_selectedCategory != 'explore_page.category_all') {
+      final categoryName = _selectedCategory.split('.').last.replaceAll('category_', '');
+      filteredSkills = filteredSkills
+          .where((skill) => skill.toLowerCase().contains(categoryName.toLowerCase()))
+          .toList();
+    }
+
+    // Sort skills alphabetically
+    filteredSkills.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+
+    if (filteredSkills.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off, size: 64, color: theme.colorScheme.primary.withOpacity(0.5)),
+            const SizedBox(height: 16),
+            Text(
+              'explore_page.no_skills_found'.tr(),
+              style: theme.textTheme.titleMedium,
+            ),
+            if (_searchQuery.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                'explore_page.try_different_search'.tr(),
+                style: theme.textTheme.bodySmall,
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: filteredSkills.length,
+      itemBuilder: (context, index) {
+        final skill = filteredSkills[index];
+        final usersWantingSkill = skillsToLearnMap[skill]!;
+
+        // Apply compatible filter if enabled
+        final displayUsers = _showCompatibleOnly
+            ? usersWantingSkill.where((user) {
+                final compatibility = _checkCompatibility(user);
+                return compatibility['isCompatible'] == true;
+              }).toList()
+            : usersWantingSkill;
+
+        if (displayUsers.isEmpty) return const SizedBox.shrink();
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Theme(
+            data: theme.copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              leading: CircleAvatar(
+                backgroundColor: theme.colorScheme.primaryContainer,
+                child: Icon(
+                  Icons.school,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              title: Text(
+                skill,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Text(
+                'explore_page.users_want_to_learn'.tr(namedArgs: {'count': displayUsers.length.toString()}),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              children: displayUsers.map((user) {
+                final compatibility = _checkCompatibility(user);
+                return _buildSkillUserTile(user, skill, compatibility);
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSkillUserTile(Map<String, dynamic> user, String skill, Map<String, dynamic> compatibility) {
+    final theme = Theme.of(context);
+    final isCompatible = compatibility['isCompatible'] as bool;
+    final userSkillsToOffer = (user['skills'] as List?)?.cast<String>() ?? [];
+
+    return ListTile(
+      leading: Stack(
+        children: [
+          CircleAvatar(
+            radius: 24,
+            backgroundImage: user['profilePictureBase64'] != null
+                ? MemoryImage(base64Decode(user['profilePictureBase64']))
+                : null,
+            child: user['profilePictureBase64'] == null
+                ? const Icon(Icons.person)
+                : null,
+          ),
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: isCompatible ? Colors.green : Colors.red,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.5),
+              ),
+              child: Icon(
+                isCompatible ? Icons.check : Icons.close,
+                color: Colors.white,
+                size: 10,
+              ),
+            ),
+          ),
+        ],
+      ),
+      title: Text(
+        user['name'] ?? 'explore_page.unknown'.tr(),
+        style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (userSkillsToOffer.isNotEmpty)
+            Text(
+              'explore_page.can_teach'.tr(namedArgs: {'skills': userSkillsToOffer.take(2).join(', ')}),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.secondary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          Text(
+            user['nationality'] ?? '',
+            style: theme.textTheme.bodySmall,
+          ),
+        ],
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios,
+        size: 16,
+        color: isCompatible ? null : Colors.red,
+      ),
+      onTap: () => _showCompatibilityDialog(user, compatibility),
     );
   }
 

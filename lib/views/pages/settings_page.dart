@@ -5,8 +5,6 @@ import 'package:skillswap/providers/theme_provider.dart';
 import 'package:skillswap/providers/settings_provider.dart';
 import 'package:skillswap/views/pages/change_password_page.dart';
 
-//TODO: Private account - implement logic or remove!! Oricum nu pot vedea profilul cuiva
-
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 

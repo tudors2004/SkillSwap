@@ -9,7 +9,6 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 //TODO: Solve Add Profile Picture visual bug
-//TODO: MAKE PREFERED NATIONALITY MANDATORY
 
 class ProfileSetupPage extends StatefulWidget {
   const ProfileSetupPage({super.key});
@@ -755,13 +754,31 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     onChanged: (v) => setState(() => _preferredGender = v),
                   ),
                   const SizedBox(height: 16),
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: 'profile_setup_page.preferred_nationality'.tr(),
-                      border: const OutlineInputBorder(),
+                  DropdownSearch<String>(
+                    items: (filter, infiniteScrollProps) async =>
+                    Constants.nationalities,
+                    selectedItem: _preferredNationality,
+                    decoratorProps: DropDownDecoratorProps(
+                      decoration: InputDecoration(
+                        labelText: 'profile_setup_page.preferred_nationality'.tr(),
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.flag),
+                      ),
                     ),
-                    onChanged: (v) => _preferredNationality = v,
+                    popupProps: PopupProps.menu(
+                      showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                        decoration: InputDecoration(
+                          hintText: 'profile_setup_page.search_nationality'.tr(),
+                          prefixIcon: const Icon(Icons.search),
+                        ),
+                      ),
+                    ),
+                    onChanged: (v) => setState(() => _preferredNationality = v),
+                    validator: (v) =>
+                    v == null ? 'profile_setup_page.preferred_nationality_required'.tr() : null,
                   ),
+
                   const SizedBox(height: 16),
                   TextField(
                     decoration: InputDecoration(

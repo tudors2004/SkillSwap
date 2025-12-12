@@ -271,7 +271,11 @@
     "nationality_mismatch": "Nazionalità non corrispondente: Previsto {expected}, trovato {found}",
     "too_far": "Troppo lontano: {distance} km di distanza (limite: {limit} km)",
     "age_outside_range": "Età fuori dal range: {age} anni (previsto {min}-{max})",
-    "religion_preference": "Preferenza religiosa: Previsto {expected}, trovato {found}"
+    "religion_preference": "Preferenza religiosa: Previsto {expected}, trovato {found}",
+    "no_skills_found": "Nessuna competenza trovata",
+    "try_different_search": "Prova un altro termine di ricerca",
+    "users_want_to_learn": "{count} utente/i vogliono imparare questo",
+    "can_teach": "Può insegnare: {skills}"
   },
 
   "profile_setup_page": {

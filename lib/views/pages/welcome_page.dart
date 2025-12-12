@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:skillswap/views/pages/login_page.dart';
 import 'package:skillswap/views/pages/register_page.dart';
-
+import 'package:google_fonts/google_fonts.dart';
+//TODO: TEST IF FONT WORKS
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
@@ -29,12 +30,13 @@ class WelcomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Spacer(flex: 2),
-                  const Text(
+                  Text(
                     'Welcome to SkillSwap',
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
+                      letterSpacing: 1.2,
                     ),
                     textAlign: TextAlign.center,
                   ),

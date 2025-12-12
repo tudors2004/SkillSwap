@@ -291,7 +291,11 @@
     "nationality_mismatch": "Nationality mismatch: Expected {expected}, found {found}",
     "too_far": "Too far: {distance} km away (limit: {limit} km)",
     "age_outside_range": "Age outside range: {age} years (expected {min}-{max})",
-    "religion_preference": "Religion preference: Expected {expected}, found {found}"
+    "religion_preference": "Religion preference: Expected {expected}, found {found}",
+    "no_skills_found": "No skills found",
+    "try_different_search": "Try a different search term",
+    "users_want_to_learn": "{count} user(s) want to learn this",
+    "can_teach": "Can teach: {skills}"
   },
 
   "profile_setup_page": {

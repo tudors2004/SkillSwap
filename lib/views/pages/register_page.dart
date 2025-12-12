@@ -115,13 +115,12 @@ class _RegisterPageState extends State<RegisterPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-            // SkillSwap Title
             Text(
               'SkillSwap',
               textAlign: TextAlign.center,
               style: theme.textTheme.headlineLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: theme.primaryColor,
+                color: theme.colorScheme.primary,
               ),
             ),
             const SizedBox(height: 80),
@@ -154,12 +153,12 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
             const SizedBox(height: 16),
 
-            // Password Field
+
             TextField(
               controller: _passwordController,
               obscureText: true,
               decoration: const InputDecoration(
-                hintText: 'password',
+                hintText: 'Password',
               ),
             ),
             const SizedBox(height: 16),
@@ -169,7 +168,7 @@ class _RegisterPageState extends State<RegisterPage> {
               controller: _confirmPasswordController,
               obscureText: true,
               decoration: const InputDecoration(
-                hintText: 'confirm password',
+                hintText: 'Confirm Password',
               ),
             ),
             const SizedBox(height: 16),
@@ -217,7 +216,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   TextSpan(
                     text: 'Log in',
                     style: TextStyle(
-                      color: theme.primaryColor,
+                      color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.underline,
                     ),
