@@ -28,7 +28,6 @@ import 'package:skillswap/views/pages/chat_list_page.dart';
 */
 
 
-//TODO: IN WALLET !!!!!!!!!!!!!!!!! - SCRIS ALB PE ALB LA MY CONNECTIONS SI MY EXCHANGES
 
 
 
@@ -640,6 +639,7 @@ class _ExplorePageState extends State<ExplorePage>
     final theme = Theme.of(context);
     final isCompatible = compatibility['isCompatible'] as bool;
     final userSkillsToOffer = (user['skills'] as List?)?.cast<String>() ?? [];
+    final isDarkMode = theme.brightness == Brightness.dark;
 
     return ListTile(
       leading: Stack(
@@ -683,7 +683,7 @@ class _ExplorePageState extends State<ExplorePage>
             Text(
               'explore_page.can_teach'.tr(namedArgs: {'skills': userSkillsToOffer.take(2).join(', ')}),
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.secondary,
+                color: isDarkMode ? Colors.white : Colors.black,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
