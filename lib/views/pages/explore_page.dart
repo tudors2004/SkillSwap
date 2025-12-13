@@ -15,7 +15,27 @@ import 'package:skillswap/views/pages/chat_list_page.dart';
    daca ioana are c++ sau mihai are guitar, ar trebui sa apara ioana la programming respectiv mihai la music
    poate mai adaugam sports si alte chestii
 
+   SAU
+
+   SA FAC UN SKILL PREDEFINIT, GEN MUSIC, SI LA DESCRIERE SA SCRIU GUITAR SAU PIANO SAU ETC.... SI CAND SELECTEZ MUSIC SA MI APARA USERI CU GUITAR PIANO ... ETC
+
 */
+
+//TODO: LA AIA CU CAN TEACH: E SCRIS BLACK PE BLACK IN DARK MODE 
+
+/*TODO: CAND CINEVA SE LOGHEAZA NOU PE APP, HOME PAGE U DA EROARE DE LA FLUTTER, CAND ISI INTRODUCE DATELE DE PROFIL ( CRED CA DE LA LOCATIE LIPSA)
+         ISI REVINE HOME PAGE U
+*/
+
+
+//TODO: IN WALLET !!!!!!!!!!!!!!!!! - SCRIS ALB PE ALB LA MY CONNECTIONS SI MY EXCHANGES
+
+
+//TODO : IN DRAWER PE DARK MODE SE VEDE CA PULA NU SE VAD ICONITELE LA SETTINGS LA NIMIC 
+
+//TODO:  CAND DAU BACK DE PE TELEFON DIN PAGINA DE HOME.. MA DUCE PE LOGIN, AR TREBUI SA MA SCOATA DIN APP, 
+// TODO: SCOATE LUPA DIN DREAPTA SUS LASA NUMA CLOPOTELUL
+
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
 
