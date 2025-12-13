@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'dart:convert';
 import 'dart:math';
 import 'package:skillswap/services/profile_service.dart';
@@ -21,7 +22,6 @@ import 'package:skillswap/views/pages/chat_list_page.dart';
 
 */
 
-//TODO: LA AIA CU CAN TEACH: E SCRIS BLACK PE BLACK IN DARK MODE 
 
 /*TODO: CAND CINEVA SE LOGHEAZA NOU PE APP, HOME PAGE U DA EROARE DE LA FLUTTER, CAND ISI INTRODUCE DATELE DE PROFIL ( CRED CA DE LA LOCATIE LIPSA)
          ISI REVINE HOME PAGE U
@@ -31,7 +31,6 @@ import 'package:skillswap/views/pages/chat_list_page.dart';
 
 
 
-//TODO:  CAND DAU BACK DE PE TELEFON DIN PAGINA DE HOME.. MA DUCE PE LOGIN, AR TREBUI SA MA SCOATA DIN APP, 
 
 
 class ExplorePage extends StatefulWidget {

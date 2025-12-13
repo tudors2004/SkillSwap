@@ -6,6 +6,7 @@ import 'package:skillswap/views/pages/profile_page.dart';
 import 'package:skillswap/views/pages/skills_page.dart';
 import 'package:skillswap/views/pages/explore_page.dart';
 import 'package:skillswap/views/pages/wallet_page.dart';
+import 'package:flutter/services.dart'; 
 import 'package:provider/provider.dart';
 import 'package:skillswap/providers/settings_provider.dart';
 import 'package:skillswap/providers/theme_provider.dart';
