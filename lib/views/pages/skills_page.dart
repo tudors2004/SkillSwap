@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:skillswap/services/skills_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+//TODO: DE REFACUT SKILLS PAGE LA FEL CA PROFILE PAGE
+
 class SkillsPage extends StatefulWidget {
   const SkillsPage({super.key});
 

@@ -3,7 +3,7 @@ import 'package:lottie/lottie.dart';
 import 'package:skillswap/views/pages/login_page.dart';
 import 'package:skillswap/views/pages/register_page.dart';
 import 'package:google_fonts/google_fonts.dart';
-//TODO: TEST IF FONT WORKS
+
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 

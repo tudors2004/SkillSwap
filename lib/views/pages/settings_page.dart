@@ -99,6 +99,12 @@ class SettingsPage extends StatelessWidget {
         return 'spanish'.tr();
       case 'it':
         return 'italian'.tr();
+      case 'ar':
+        return 'arabic'.tr();
+      case 'ro':
+        return 'romanian'.tr();
+      case 'pt':
+        return 'portuguese'.tr();
       default:
         return 'english'.tr();
     }
@@ -162,6 +168,39 @@ class SettingsPage extends StatelessWidget {
             RadioListTile<Locale>(
               title: Text('italian'.tr(), style: theme.textTheme.titleMedium),
               value: const Locale('it'),
+              groupValue: context.locale,
+              onChanged: (value) {
+                context.setLocale(value!);
+                settingsProvider.setLanguage(value.languageCode);
+                Navigator.pop(context);
+              },
+              activeColor: theme.colorScheme.primary,
+            ),
+            RadioListTile<Locale>(
+              title: Text('arabic'.tr(), style: theme.textTheme.titleMedium),
+              value: const Locale('ar'),
+              groupValue: context.locale,
+              onChanged: (value) {
+                context.setLocale(value!);
+                settingsProvider.setLanguage(value.languageCode);
+                Navigator.pop(context);
+              },
+              activeColor: theme.colorScheme.primary,
+            ),
+            RadioListTile<Locale>(
+              title: Text('romanian'.tr(), style: theme.textTheme.titleMedium),
+              value: const Locale('ro'),
+              groupValue: context.locale,
+              onChanged: (value) {
+                context.setLocale(value!);
+                settingsProvider.setLanguage(value.languageCode);
+                Navigator.pop(context);
+              },
+              activeColor: theme.colorScheme.primary,
+            ),
+            RadioListTile<Locale>(
+              title: Text('portuguese'.tr(), style: theme.textTheme.titleMedium),
+              value: const Locale('pt'),
               groupValue: context.locale,
               onChanged: (value) {
                 context.setLocale(value!);

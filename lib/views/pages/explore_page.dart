@@ -9,6 +9,13 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:skillswap/views/pages/chat_list_page.dart';
 
+/*TODO: La categories este exemplu: Music, Programming, Languages -
+   astea ar trb sa fie filtre pt skills,
+   daca eu am german si english la skills, cand dau pe languages, ar trebui sa apara userul meu cu german si english
+   daca ioana are c++ sau mihai are guitar, ar trebui sa apara ioana la programming respectiv mihai la music
+   poate mai adaugam sports si alte chestii
+
+*/
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
 
@@ -279,7 +286,7 @@ class _ExplorePageState extends State<ExplorePage>
             children: [
               _buildPeopleTab(),
               _buildSkillsTab(),
-              Center(child: Text('explore_page.events_coming_soon'.tr())),
+              Center(child: Text("Coming Soon.. Stay Tuned!")),
             ],
           ),
         ),
@@ -460,7 +467,6 @@ class _ExplorePageState extends State<ExplorePage>
         }
       }
 
-      // --- FIX IS HERE ---
       if (_showCompatibleOnly) {
         final compatibility = _checkCompatibility(user);
         // If user is not compatible, filter them out
@@ -468,7 +474,6 @@ class _ExplorePageState extends State<ExplorePage>
           return false;
         }
       }
-      // -------------------
 
       return true;
     }).toList();
@@ -506,7 +511,7 @@ class _ExplorePageState extends State<ExplorePage>
       );
     }
 
-    // Build a map of skills to learn -> list of users who want to learn that skill
+    //build a map of skills to learn - list of users who want to learn that skill
     final Map<String, List<Map<String, dynamic>>> skillsToLearnMap = {};
 
     for (final user in _allUsers) {
@@ -519,7 +524,6 @@ class _ExplorePageState extends State<ExplorePage>
       }
     }
 
-    // Filter skills based on search query
     var filteredSkills = skillsToLearnMap.keys.toList();
     if (_searchQuery.isNotEmpty) {
       filteredSkills = filteredSkills
@@ -527,15 +531,12 @@ class _ExplorePageState extends State<ExplorePage>
           .toList();
     }
 
-    // Filter by category if selected
     if (_selectedCategory != 'explore_page.category_all') {
       final categoryName = _selectedCategory.split('.').last.replaceAll('category_', '');
       filteredSkills = filteredSkills
           .where((skill) => skill.toLowerCase().contains(categoryName.toLowerCase()))
           .toList();
     }
-
-    // Sort skills alphabetically
     filteredSkills.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
     if (filteredSkills.isEmpty) {
