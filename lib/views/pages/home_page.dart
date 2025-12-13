@@ -77,9 +77,20 @@ class _HomePageState extends State<HomePage> {
     required VoidCallback onTap,
     bool isDestructive = false,
   }) {
+
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    final textColor = isDestructive
+        ? Colors.red.shade400
+        : (isDarkMode ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color);
+
+    final iconColor = isDestructive
+        ? Colors.red.shade400
+        : (isDarkMode ? Colors.white : Theme.of(context).primaryColor);
+
     final color = isDestructive
         ? Colors.red.shade400
-        : Theme.of(context).textTheme.bodyLarge?.color;
+        : Theme.of(context).colorScheme.primary;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -107,7 +118,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   child: Icon(
                     icon,
-                    color: isDestructive ? Colors.red.shade400 : Theme.of(context).primaryColor,
+                    color: iconColor,
                     size: 22,
                   ),
                 ),
@@ -118,14 +129,14 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
-                      color: color,
+                      color: textColor,
                     ),
                   ),
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 14,
-                  color: color?.withOpacity(0.5),
+                  color: textColor?.withOpacity(0.5),
                 ),
               ],
             ),
