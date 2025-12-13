@@ -34,7 +34,7 @@ import 'package:skillswap/views/pages/chat_list_page.dart';
 //TODO : IN DRAWER PE DARK MODE SE VEDE CA PULA NU SE VAD ICONITELE LA SETTINGS LA NIMIC 
 
 //TODO:  CAND DAU BACK DE PE TELEFON DIN PAGINA DE HOME.. MA DUCE PE LOGIN, AR TREBUI SA MA SCOATA DIN APP, 
-// TODO: SCOATE LUPA DIN DREAPTA SUS LASA NUMA CLOPOTELUL
+
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
