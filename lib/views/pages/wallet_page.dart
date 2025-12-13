@@ -200,6 +200,9 @@ class _WalletPageState extends State<WalletPage> {
   }
 
   Widget _buildConnectionsSection() {
+
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -212,11 +215,20 @@ class _WalletPageState extends State<WalletPage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.grey[200],
+              color: isDarkMode ? Color(0xFFE8C4D8) : Colors.grey[200],
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
-              child: Text('wallet_page.no_connections'.tr()),
+              child: Text('wallet_page.no_connections'.tr(),
+              
+              style: const TextStyle(
+                  color: Colors.black54, 
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              
+              
+              ),
             ),
           )
         else
@@ -247,6 +259,9 @@ class _WalletPageState extends State<WalletPage> {
   }
 
   Widget _buildExchangesSection() {
+
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -267,11 +282,21 @@ class _WalletPageState extends State<WalletPage> {
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: isDarkMode ? Color(0xFFE8C4D8) : Colors.grey[200],
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Text('wallet_page.no_exchanges'.tr()),
+                  child: Text('wallet_page.no_exchanges'.tr(),
+                  
+                  style: const TextStyle(
+                  color: Colors.black54, 
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+                  
+                  
+                  
+                  ),
                 ),
               );
             }
