@@ -6,16 +6,14 @@ import 'package:skillswap/views/pages/profile_page.dart';
 import 'package:skillswap/views/pages/skills_page.dart';
 import 'package:skillswap/views/pages/explore_page.dart';
 import 'package:skillswap/views/pages/wallet_page.dart';
-import 'package:provider/provider.dart'; 
-import 'package:skillswap/providers/settings_provider.dart'; 
+import 'package:provider/provider.dart';
+import 'package:skillswap/providers/settings_provider.dart';
 import 'package:skillswap/providers/theme_provider.dart';
 import 'package:skillswap/services/connection_service.dart';
 import 'package:skillswap/views/pages/notifications_page.dart';
 import 'package:skillswap/views/pages/chat_list_page.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:skillswap/views/pages/help_support_page.dart';
-
-//TODO: Trebuie inlocuit home page asta cu explore ul actual
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,13 +27,13 @@ class _HomePageState extends State<HomePage> {
   final ConnectionService _connectionService = ConnectionService();
   int _selectedIndex = 0;
 
+  // We have exactly 5 pages here
   final List<Widget> _pages = [
-    const HomeContent(),
-    const ExplorePage(),
-    const WalletPage(),
-    const SkillsPage(),
-    const ChatListPage(),
-    const ProfilePage(),
+    const ExplorePage(),   // Index 0: Home is now Explore
+    const WalletPage(),    // Index 1: Wallet
+    const SkillsPage(),    // Index 2: Skills
+    const ChatListPage(),  // Index 3: Chat
+    const ProfilePage(),   // Index 4: Profile
   ];
 
   void _onItemTapped(int index) {
@@ -43,14 +41,14 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
   }
+
   @override
   void initState() {
     super.initState();
-    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-      
+
       settingsProvider.syncFromCloud();
       themeProvider.syncFromCloud();
     });
@@ -70,6 +68,71 @@ class _HomePageState extends State<HomePage> {
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     }
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required IconData activeIcon,
+    required String title,
+    required VoidCallback onTap,
+    bool isDestructive = false,
+  }) {
+    final color = isDestructive
+        ? Colors.red.shade400
+        : Theme.of(context).textTheme.bodyLarge?.color;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: (isDestructive ? Colors.red : Theme.of(context).primaryColor).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: isDestructive ? Colors.red.shade400 : Theme.of(context).primaryColor,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: color,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: color?.withOpacity(0.5),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -127,83 +190,172 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // Handle search
+              // Search logic if needed
             },
           ),
         ],
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.person, size: 40, color: Colors.black,),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Theme.of(context).primaryColor,
+                Theme.of(context).primaryColor.withOpacity(0.8),
+                Theme.of(context).colorScheme.surface,
+              ],
+              stops: const [0.0, 0.3, 0.5],
+            ),
+          ),
+          child: Column(
+            children: [
+              // Custom Header with gradient overlay
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 24,
+                  bottom: 24,
+                  left: 20,
+                  right: 20,
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Theme.of(context).primaryColor,
+                      Theme.of(context).primaryColor.withOpacity(0.85),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    _authService.currentUser?.email ?? 'User',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+                  borderRadius: const BorderRadius.only(
+                    bottomRight: Radius.circular(40),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).primaryColor.withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white.withOpacity(0.9),
+                            Colors.white.withOpacity(0.6),
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const CircleAvatar(
+                        radius: 35,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.person, size: 40, color: Colors.black54),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _authService.currentUser?.displayName ?? 'Welcome!',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _authService.currentUser?.email ?? 'User',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.85),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: Text('drawer.settings'.tr()),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsPage()),
-                    );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.help_outline),
-              title: Text('drawer.help'.tr()),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpSupportPage()),
-                );
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: Text('drawer.logout'.tr()),
-              onTap: () {
-                Navigator.pop(context);
-                _handleLogout();
-              },
-            ),
-          ],
+              const SizedBox(height: 16),
+              // Menu Items
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  children: [
+                    _buildDrawerItem(
+                      icon: Icons.settings_outlined,
+                      activeIcon: Icons.settings,
+                      title: 'drawer.settings'.tr(),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsPage()));
+                      },
+                    ),
+                    _buildDrawerItem(
+                      icon: Icons.help_outline,
+                      activeIcon: Icons.help,
+                      title: 'drawer.help'.tr(),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpSupportPage()));
+                      },
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      child: Divider(),
+                    ),
+                    _buildDrawerItem(
+                      icon: Icons.logout_outlined,
+                      activeIcon: Icons.logout,
+                      title: 'drawer.logout'.tr(),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _handleLogout();
+                      },
+                      isDestructive: true,
+                    ),
+                  ],
+                ),
+              ),
+              // Footer
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  'SkillSwap © 2025',
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.5),
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
+      // We explicitly access the page by index
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        // Exactly 5 items to match the 5 pages in _pages
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.home_outlined),
+            icon: const Icon(Icons.home_outlined), // Home Icon
             activeIcon: const Icon(Icons.home),
             label: 'bottomNav.home'.tr(),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.explore_outlined),
-            activeIcon: const Icon(Icons.explore),
-            label: 'bottomNav.explore'.tr(),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.account_balance_wallet_outlined),
@@ -226,141 +378,6 @@ class _HomePageState extends State<HomePage> {
             label: 'bottomNav.profile'.tr(),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class HomeContent extends StatelessWidget {
-  const HomeContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome to SkillSwap!',
-              style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Connect with others and exchange skills',
-              style: theme.textTheme.titleMedium?.copyWith(color: theme.textTheme.bodySmall?.color),
-            ),
-            const SizedBox(height: 24),
-            _buildQuickActions(context),
-            const SizedBox(height: 24),
-            Text(
-              'Trending Skills',
-              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            _buildTrendingSkills(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuickActions(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
-    return Row(
-      children: [
-        Expanded(
-          child: _buildActionCard(
-            context,
-            icon: Icons.school_outlined,
-            title: 'Add skill to teach',
-            color: primary,
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const SkillsPage()));
-            },
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildActionCard(
-            context,
-            icon: Icons.lightbulb_outline,
-            title: 'Add learning goal',
-            color: primary.withOpacity(0.85),
-            onTap: () {
-
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionCard(BuildContext context, {
-    required IconData icon,
-    required String title,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12.0),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              Icon(icon, size: 40, color: color),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTrendingSkills(BuildContext context) {
-    final skills = [
-      'Programming',
-      'Design',
-      'Languages',
-      'Music',
-      'Cooking',
-      'Photography',
-    ];
-
-    return SizedBox(
-      height: 120,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: skills.length,
-        itemBuilder: (context, index) {
-          return Card(
-            margin: const EdgeInsets.only(right: 12),
-            child: Container(
-              width: 150,
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.star, size: 40, color: Theme.of(context).colorScheme.primary.withOpacity(0.7)),
-                  const SizedBox(height: 8),
-                  Text(
-                    skills[index],
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
       ),
     );
   }

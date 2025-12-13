@@ -4,8 +4,6 @@ import 'package:skillswap/views/pages/home_page.dart';
 import 'package:skillswap/views/pages/register_page.dart';
 import 'package:skillswap/services/auth_service.dart';
 
-//TODO: Solve the visual black on black writing problem
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -136,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
               textAlign: TextAlign.center,
               style: theme.textTheme.headlineLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: theme.primaryColor,
+                color: theme.colorScheme.primary,
               ),
             ),
             const SizedBox(height: 80),
@@ -219,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                   TextSpan(
                     text: 'Sign up',
                     style: TextStyle(
-                      color: theme.primaryColor,
+                      color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.underline,
                     ),

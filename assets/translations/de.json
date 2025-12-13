@@ -16,6 +16,11 @@
   "english": "Englisch",
   "french": "Französisch",
   "german": "Deutsch",
+  "italian": "Italienisch",
+  "portuguese": "Portugiesisch",
+  "spanish": "Spanisch",
+  "arabic": "Arabisch",
+  "romanian": "Rumänisch",
   "welcome_title": "Willkommen bei SkillSwap",
   "welcome_subtitle": "Verbinde dich und tausche Fähigkeiten mit anderen aus",
   "get_started": "Los geht’s",
@@ -258,7 +263,11 @@
     "nationality_mismatch": "Nationalität stimmt nicht überein: Erwartet {expected}, gefunden {found}",
     "too_far": "Zu weit: {distance} km entfernt (Limit: {limit} km)",
     "age_outside_range": "Alter außerhalb des Bereichs: {age} Jahre (erwartet {min}-{max})",
-    "religion_preference": "Religionspräferenz: Erwartet {expected}, gefunden {found}"
+    "religion_preference": "Religionspräferenz: Erwartet {expected}, gefunden {found}",
+    "no_skills_found": "Keine Fähigkeiten gefunden",
+    "try_different_search": "Versuchen Sie einen anderen Suchbegriff",
+    "users_want_to_learn": "{count} Benutzer möchten dies lernen",
+    "can_teach": "Kann unterrichten: {skills}"
   },
 
   "profile_setup_page": {
