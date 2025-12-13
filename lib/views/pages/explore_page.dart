@@ -23,9 +23,7 @@ import 'package:skillswap/views/pages/chat_list_page.dart';
 */
 
 
-/*TODO: CAND CINEVA SE LOGHEAZA NOU PE APP, HOME PAGE U DA EROARE DE LA FLUTTER, CAND ISI INTRODUCE DATELE DE PROFIL ( CRED CA DE LA LOCATIE LIPSA)
-         ISI REVINE HOME PAGE U
-*/
+
 
 
 
@@ -316,7 +314,8 @@ class _ExplorePageState extends State<ExplorePage>
       return {'isCompatible': true, 'reasons': []};
     }
 
-    final myPrefs = _myProfile!['preferences'] as Map<String, dynamic>?;
+    final myPrefs = _myProfile?['preferences'] as Map<String, dynamic>?;
+
     final reasons = <String>[];
 
     if (myPrefs == null) {
@@ -342,7 +341,7 @@ class _ExplorePageState extends State<ExplorePage>
     }
 
     if (myPrefs['locationRange'] != null &&
-        _myProfile!['location'] != null &&
+        _myProfile?['location'] != null &&
         otherUser['location'] != null) {
       try {
         final distance = _calculateDistance(
@@ -416,39 +415,45 @@ class _ExplorePageState extends State<ExplorePage>
   }
 
   double _calculateDistance(dynamic loc1, dynamic loc2) {
-    const R = 6371;
+    const R = 6371; // Earth radius in km
 
     double lat1, lon1, lat2, lon2;
 
-    if (loc1 is GeoPoint) {
-      lat1 = loc1.latitude;
-      lon1 = loc1.longitude;
-    } else if (loc1 is Map<String, dynamic>) {
-      lat1 = loc1['latitude'] as double;
-      lon1 = loc1['longitude'] as double;
-    } else {
-      throw Exception('Invalid location format for loc1');
+    try {
+      // Safely parse Location 1
+      if (loc1 is GeoPoint) {
+        lat1 = loc1.latitude;
+        lon1 = loc1.longitude;
+      } else if (loc1 is Map<String, dynamic>) {
+        lat1 = (loc1['latitude'] as num).toDouble();
+        lon1 = (loc1['longitude'] as num).toDouble();
+      } else {
+        return double.infinity; // Invalid format, treat as infinite distance
+      }
+
+      // Safely parse Location 2
+      if (loc2 is GeoPoint) {
+        lat2 = loc2.latitude;
+        lon2 = loc2.longitude;
+      } else if (loc2 is Map<String, dynamic>) {
+        lat2 = (loc2['latitude'] as num).toDouble();
+        lon2 = (loc2['longitude'] as num).toDouble();
+      } else {
+        return double.infinity;
+      }
+
+      final dLat = _toRadians(lat2 - lat1);
+      final dLon = _toRadians(lon2 - lon1);
+
+      final a = sin(dLat / 2) * sin(dLat / 2) +
+          cos(_toRadians(lat1)) * cos(_toRadians(lat2)) *
+              sin(dLon / 2) * sin(dLon / 2);
+
+      final c = 2 * atan2(sqrt(a), sqrt(1 - a));
+      return R * c;
+    } catch (e) {
+      return double.infinity;
     }
-
-    if (loc2 is GeoPoint) {
-      lat2 = loc2.latitude;
-      lon2 = loc2.longitude;
-    } else if (loc2 is Map<String, dynamic>) {
-      lat2 = loc2['latitude'] as double;
-      lon2 = loc2['longitude'] as double;
-    } else {
-      throw Exception('Invalid location format for loc2');
-    }
-
-    final dLat = _toRadians(lat2 - lat1);
-    final dLon = _toRadians(lon2 - lon1);
-
-    final a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(_toRadians(lat1)) * cos(_toRadians(lat2)) *
-            sin(dLon / 2) * sin(dLon / 2);
-
-    final c = 2 * atan2(sqrt(a), sqrt(1 - a));
-    return R * c;
   }
 
   double _toRadians(double degrees) {
