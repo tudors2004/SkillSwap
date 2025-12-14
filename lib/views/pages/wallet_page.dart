@@ -410,7 +410,9 @@ class _WalletPageState extends State<WalletPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('wallet_page.i_want_to_learn'.tr(), style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('wallet_page.i_want_to_learn'.tr(), style: TextStyle(
+                color: Colors.purple,
+                fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
 
               StreamBuilder<DocumentSnapshot>(
@@ -462,7 +464,11 @@ class _WalletPageState extends State<WalletPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text('wallet_page.in_exchange_for'.tr(), style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('wallet_page.in_exchange_for'.tr(), style: TextStyle(
+                color: Colors.purple,
+                fontWeight: FontWeight.bold
+              
+              )),
               const SizedBox(height: 8),
               StreamBuilder<DocumentSnapshot>(
                 stream: _firestore
@@ -553,7 +559,12 @@ class _WalletPageState extends State<WalletPage> {
                 }
               }
             },
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              backgroundColor: Colors.purple
+            ),
             child: Text('wallet_page.propose'.tr()),
+            
           ),
         ],
       ),

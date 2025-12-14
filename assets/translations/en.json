@@ -365,6 +365,19 @@
     "select_dob_error": "Please select your date of birth",
     "error_saving_profile": "Error saving profile: {error}"
     
+  },
+
+
+  "categories": {
+    "all": "All",
+    "programming": "Programming",
+    "music": "Music",
+    "languages": "Languages",
+    "sports": "Sports",
+    "art": "Art",
+    "cooking": "Cooking",
+    "other": "Other",
+    "auto_detected": "Category: {category}"
   }
   
 }

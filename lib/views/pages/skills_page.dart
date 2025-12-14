@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skillswap/services/skills_service.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:skillswap/data/constants.dart';
 
 class SkillsPage extends StatefulWidget {
   const SkillsPage({super.key});
@@ -71,6 +72,7 @@ class _SkillsPageState extends State<SkillsPage> {
       _skillsToOfferControllers.add(_SkillInputControllers(
         skill['name'] ?? '',
         skill['description'] ?? '',
+        skill['category'] ?? 'Other',
       ));
     }
 
@@ -79,6 +81,7 @@ class _SkillsPageState extends State<SkillsPage> {
       _skillsToLearnControllers.add(_SkillInputControllers(
         skill['name'] ?? '',
         skill['description'] ?? '',
+        skill['category'] ?? 'Other',
       ));
     }
   }
@@ -123,12 +126,20 @@ class _SkillsPageState extends State<SkillsPage> {
 
   Future<void> _saveSkills() async {
     final skillsToOffer = _skillsToOfferControllers
-        .map((c) => {'name': c.nameController.text, 'description': c.descriptionController.text})
+        .map((c) => {
+              'name': c.nameController.text, 
+              'description': c.descriptionController.text,
+              'category': c.selectedCategory // Saving the category!
+            })
         .where((skill) => (skill['name'] as String).isNotEmpty)
         .toList();
 
     final skillsToLearn = _skillsToLearnControllers
-        .map((c) => {'name': c.nameController.text, 'description': ''})
+        .map((c) => {
+              'name': c.nameController.text, 
+              'description': '',
+              'category': c.selectedCategory // Saving the category!
+            })
         .where((skill) => (skill['name'] as String).isNotEmpty)
         .toList();
     
@@ -174,8 +185,6 @@ class _SkillsPageState extends State<SkillsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -415,49 +424,82 @@ class _SkillsPageState extends State<SkillsPage> {
   }
 
   Widget _buildSkillInput(_SkillInputControllers controller, VoidCallback onRemove, Color accentColor, {required bool showDescription}) {
-    final theme = Theme.of(context);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accentColor.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: controller.nameController,
-                  decoration: InputDecoration(
-                    labelText: 'skills_page.skill_name'.tr(),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: onRemove,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            TextFormField(
+              controller: controller.nameController,
+              decoration: InputDecoration(
+                labelText: 'skills_page.skill_name'.tr(),
+                border: const OutlineInputBorder(),
+              ),
+              // --- AUTO DETECT LOGIC ---
+              onChanged: (value) {
+                final lowerValue = value.trim().toLowerCase();
+                String newCategory = 'Other';
+
+                // Check for keywords in our Dictionary
+                for (var key in Constants.kSkillKeywordMap.keys) {
+                  if (lowerValue.contains(key)) {
+                    newCategory = Constants.kSkillKeywordMap[key]!;
+                    break; 
+                  }
+                }
+                
+                if (controller.selectedCategory != newCategory) {
+                  setState(() {
+                    controller.selectedCategory = newCategory;
+                  });
+                }
+              },
+            ),
+            
+            // Show the auto-detected category
+            if (controller.nameController.text.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, left: 4.0),
+                child: Text(
+                  'categories.auto_detected'.tr(namedArgs: {
+                    'category': 'categories.${controller.selectedCategory.toLowerCase()}'.tr()
+                  }),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: controller.selectedCategory == 'Other' 
+                        ? Colors.grey 
+                        : Colors.green, // Green if a match is found
+                    fontStyle: FontStyle.italic,
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: Icon(Icons.remove_circle_outline, color: theme.colorScheme.error),
-                onPressed: onRemove,
+
+            if(showDescription) ...[
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: controller.descriptionController,
+                decoration: InputDecoration(
+                  labelText: 'skills_page.description'.tr(),
+                  border: const OutlineInputBorder(),
+                ),
+                maxLines: 2,
               ),
-            ],
-          ),
-          if (showDescription) ...[
-            const SizedBox(height: 10),
-            TextFormField(
-              controller: controller.descriptionController,
-              decoration: InputDecoration(
-                labelText: 'skills_page.description'.tr(),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              ),
-              maxLines: 2,
-            ),
+            ]
           ],
-        ],
+        ),
       ),
     );
   }
@@ -736,7 +778,7 @@ class _SkillsPageState extends State<SkillsPage> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Gradient Header
+          // Gradient Header... (Same as before)
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
@@ -867,10 +909,14 @@ class _SkillsPageState extends State<SkillsPage> {
 class _SkillInputControllers {
   final TextEditingController nameController;
   final TextEditingController descriptionController;
+  String selectedCategory;
 
-  _SkillInputControllers([String name = '', String description = ''])
-      : nameController = TextEditingController(text: name),
-        descriptionController = TextEditingController(text: description);
+  _SkillInputControllers([
+    String name = '', 
+    String description = '', 
+    this.selectedCategory = 'Other'
+  ]) : nameController = TextEditingController(text: name),
+       descriptionController = TextEditingController(text: description);
 
   void dispose() {
     nameController.dispose();

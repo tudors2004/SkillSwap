@@ -38,6 +38,72 @@ class Constants {
     'Welsh', 'Yemenite', 'Zambian', 'Zimbabwean'
   ];
 
+  static const List<String> kSkillCategories = [
+  'All',
+  'Programming',
+  'Music',
+  'Languages',
+  'Sports',
+  'Art',
+  'Cooking',
+  'Other',
+  ];
+
+
+  static const Map<String, String> kSkillKeywordMap = {
+  // Programming
+  'python': 'Programming',
+  'java': 'Programming',
+  'javascript': 'Programming',
+  'flutter': 'Programming',
+  'dart': 'Programming',
+  'react': 'Programming',
+  'c++': 'Programming',
+  'c#': 'Programming',
+  'html': 'Programming',
+  'css': 'Programming',
+  'coding': 'Programming',
+  
+  // Music
+  'guitar': 'Music',
+  'piano': 'Music',
+  'violin': 'Music',
+  'singing': 'Music',
+  'voice': 'Music',
+  'drums': 'Music',
+  'music': 'Music',
+  
+  // Sports
+  'football': 'Sports',
+  'soccer': 'Sports',
+  'tennis': 'Sports',
+  'climbing': 'Sports',
+  'yoga': 'Sports',
+  'gym': 'Sports',
+  'fitness': 'Sports',
+  'running': 'Sports',
+
+  // Languages
+  'english': 'Languages',
+  'spanish': 'Languages',
+  'german': 'Languages',
+  'french': 'Languages',
+  'romanian': 'Languages',
+  'italian': 'Languages',
+  
+  // Cooking
+  'cooking': 'Cooking',
+  'baking': 'Cooking',
+  'chef': 'Cooking',
+  'pastry': 'Cooking',
+  
+  // Art
+  'painting': 'Art',
+  'drawing': 'Art',
+  'design': 'Art',
+  'photography': 'Art',
+  };
+
   static const List<Map<String, String>> phoneCountryCodes = [
     {'name': 'Afghanistan', 'code': '+93'},
     {'name': 'Albania', 'code': '+355'},
