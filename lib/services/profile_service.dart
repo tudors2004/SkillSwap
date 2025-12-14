@@ -20,13 +20,19 @@ class ProfileService {
     if (userId != null) {
       try {
         final doc = await _firestore.collection('users').doc(userId).get();
+        
         if (!doc.exists) {
-          // Create initial document for new users
+          // FALLBACK: If AuthService failed to create the doc, create it here.
+          // We initialize empty lists to prevent home page crashes.
           await _firestore.collection('users').doc(userId).set({
             'userId': userId,
             'email': _auth.currentUser?.email,
             'profileSetupCompleted': false,
             'createdAt': FieldValue.serverTimestamp(),
+            'skills': [], 
+            'hoursLearned': 0,
+            'hoursTaught': 0,
+            'reputation': 0,
           });
           return false;
         }
@@ -123,7 +129,6 @@ class ProfileService {
       'description': description,
       'preferences': preferences ?? {},
       'profileSetupCompleted': true,
-      'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
 
@@ -141,8 +146,13 @@ class ProfileService {
     final userId = _auth.currentUser?.uid;
     if (userId == null) return null;
 
-    final doc = await _firestore.collection('users').doc(userId).get();
-    return doc.data();
+    try {
+      final doc = await _firestore.collection('users').doc(userId).get();
+      return doc.data();
+    } catch (e) {
+      print('Error getting user profile: $e');
+      return null;
+    }
   }
 
   Future<void> updateProfile(Map<String, dynamic> updates) async {
@@ -170,16 +180,5 @@ class ProfileService {
       print('Error deleting profile picture: $e');
     }
   }
-  Future<Map<String, dynamic>?> getUserProfile() async {
-    try {
-      final user = _auth.currentUser;
-      if (user == null) return null;
-
-      final doc = await _firestore.collection('users').doc(user.uid).get();
-      return doc.data();
-    } catch (e) {
-      print('Error getting user profile: $e');
-      return null;
-    }
-  }
+  
 }

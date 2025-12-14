@@ -24,13 +24,6 @@ import 'package:skillswap/views/pages/chat_list_page.dart';
 
 
 
-
-
-
-
-
-
-
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
 
@@ -91,39 +84,34 @@ class _ExplorePageState extends State<ExplorePage>
 
         final data = doc.data();
 
-        // Fetch skills from subcollection
-        final skillsDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(doc.id)
-            .collection('skills')
-            .doc('userSkills')
-            .get();
+        // Safely convert skills array
+        final skillsRaw = data['skills'];
+        final skills = skillsRaw is List
+            ? skillsRaw.map((e) => e?.toString() ?? '').where((s) => s.isNotEmpty).toList()
+            : <String>[];
 
-        List<String> skillNames = [];
-        List<String> skillsToLearnNames = [];
-        if (skillsDoc.exists) {
-          final skillsData = skillsDoc.data() as Map<String, dynamic>;
-          final skillsToOffer = (skillsData['skillsToOffer'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-          final skillsToLearn = (skillsData['skillsToLearn'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-          skillNames = skillsToOffer.map((skill) => skill['name'] as String).toList();
-          skillsToLearnNames = skillsToLearn.map((skill) => skill['name'] as String).toList();
-        }
+        final skillsToLearnRaw = data['skillsToLearn'];
+        final skillsToLearn = skillsToLearnRaw is List
+            ? skillsToLearnRaw.map((e) => e?.toString() ?? '').where((s) => s.isNotEmpty).toList()
+            : <String>[];
 
         users.add({
-          'uid': doc.id,
           ...data,
-          'skills': skillNames,
-          'skillsToLearn': skillsToLearnNames,
+          'uid': doc.id,
+          'skills': skills,
+          'skillsToLearn': skillsToLearn,
         });
       }
 
       if (mounted) {
         setState(() {
           _allUsers = users;
+          _isLoadingUsers = false;
         });
       }
     });
   }
+
 
 
   Future<void> _loadData() async {
@@ -152,39 +140,29 @@ class _ExplorePageState extends State<ExplorePage>
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) return [];
 
-      final QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .get();
-
+      final snapshot = await FirebaseFirestore.instance.collection('users').get();
       final users = <Map<String, dynamic>>[];
 
       for (var doc in snapshot.docs) {
         if (doc.id == currentUser.uid) continue;
 
-        final data = doc.data() as Map<String, dynamic>?;
-        if (data == null) continue;
-        final skillsDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(doc.id)
-            .collection('skills')
-            .doc('userSkills')
-            .get();
+        final data = doc.data();
 
-        List<String> skillNames = [];
-        List<String> skillsToLearnNames = [];
-        if (skillsDoc.exists) {
-          final skillsData = skillsDoc.data() as Map<String, dynamic>;
-          final skillsToOffer = (skillsData['skillsToOffer'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-          final skillsToLearn = (skillsData['skillsToLearn'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-          skillNames = skillsToOffer.map((skill) => skill['name'] as String).toList();
-          skillsToLearnNames = skillsToLearn.map((skill) => skill['name'] as String).toList();
-        }
+        final skillsRaw = data['skills'];
+        final skills = skillsRaw is List
+            ? skillsRaw.map((e) => e?.toString() ?? '').where((s) => s.isNotEmpty).toList()
+            : <String>[];
+
+        final skillsToLearnRaw = data['skillsToLearn'];
+        final skillsToLearn = skillsToLearnRaw is List
+            ? skillsToLearnRaw.map((e) => e?.toString() ?? '').where((s) => s.isNotEmpty).toList()
+            : <String>[];
 
         users.add({
-          'uid': doc.id,
           ...data,
-          'skills': skillNames,
-          'skillsToLearn': skillsToLearnNames,
+          'uid': doc.id,
+          'skills': skills,
+          'skillsToLearn': skillsToLearn,
         });
       }
 
@@ -482,8 +460,7 @@ class _ExplorePageState extends State<ExplorePage>
       }
 
       if (_selectedCategory != 'explore_page.category_all') {
-        final skills = (user['skills'] as List?)?.cast<String>() ?? [];
-        final categoryName = _selectedCategory.split('.').last.replaceAll('category_', '');
+        final skills = (user['skills'] as List?)?.map((e) => e.toString()).toList() ?? [];        final categoryName = _selectedCategory.split('.').last.replaceAll('category_', '');
         if (!skills.any((s) => s.toLowerCase().contains(categoryName.toLowerCase()))) {
           return false;
         }
@@ -537,8 +514,7 @@ class _ExplorePageState extends State<ExplorePage>
     final Map<String, List<Map<String, dynamic>>> skillsToLearnMap = {};
 
     for (final user in _allUsers) {
-      final skillsToLearn = (user['skillsToLearn'] as List?)?.cast<String>() ?? [];
-      for (final skill in skillsToLearn) {
+      final skillsToLearn = (user['skillsToLearn'] as List?)?.map((e) => e.toString()).toList() ?? [];      for (final skill in skillsToLearn) {
         if (!skillsToLearnMap.containsKey(skill)) {
           skillsToLearnMap[skill] = [];
         }
@@ -642,8 +618,7 @@ class _ExplorePageState extends State<ExplorePage>
   Widget _buildSkillUserTile(Map<String, dynamic> user, String skill, Map<String, dynamic> compatibility) {
     final theme = Theme.of(context);
     final isCompatible = compatibility['isCompatible'] as bool;
-    final userSkillsToOffer = (user['skills'] as List?)?.cast<String>() ?? [];
-    final isDarkMode = theme.brightness == Brightness.dark;
+    final userSkillsToOffer = (user['skills'] as List?)?.map((e) => e.toString()).toList() ?? [];    final isDarkMode = theme.brightness == Brightness.dark;
 
     return ListTile(
       leading: Stack(
@@ -708,10 +683,17 @@ class _ExplorePageState extends State<ExplorePage>
   }
 
   Widget _buildUserCard(Map<String, dynamic> user, Map<String, dynamic> compatibility) {
+    // Add null/validity checks at the very beginning
+    if (user['uid'] == null ||
+        user['name'] == null ||
+        user['skills'] == null ||
+        user['nationality'] == null) {
+      return const SizedBox.shrink(); // Don't render incomplete data
+    }
     final isCompatible = compatibility['isCompatible'] as bool;
-    final reasons = compatibility['reasons'] as List<String>;
+    final reasons = (compatibility['reasons'] as List<dynamic>).map((e) => e.toString()).toList();
     final theme = Theme.of(context);
-    final skills = (user['skills'] as List?)?.cast<String>() ?? [];
+    final skills = (user['skills'] as List?)?.map((e) => e.toString()).toList() ?? [];
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -822,7 +804,7 @@ class _ExplorePageState extends State<ExplorePage>
 
   void _showCompatibilityDialog(Map<String, dynamic> user, Map<String, dynamic> compatibility) async {
     final isCompatible = compatibility['isCompatible'] as bool;
-    final reasons = compatibility['reasons'] as List<String>;
+    final reasons = (compatibility['reasons'] as List<dynamic>).map((e) => e.toString()).toList();
     final connectionService = ConnectionService();
     final status = await connectionService.getConnectionStatus(user['uid']);
     if (!mounted) return;
@@ -856,7 +838,7 @@ class _ExplorePageState extends State<ExplorePage>
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 4),
-              Text('${user['nationality']} • ${(user['skills'] as List?)?.join(', ') ?? 'explore_page.no_skills'.tr()}'),
+              Text('${user['nationality']} • ${(user['skills'] as List?)?.map((e) => e.toString()).join(', ') ?? 'explore_page.no_skills'.tr()}'),
               const SizedBox(height: 16),
               if (isCompatible) ...[
                 Text('explore_page.match_all_preferences'.tr()),

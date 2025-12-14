@@ -1,4 +1,5 @@
-{
+{ 
+  
   "settings": "Settings",
   "appearance": "Appearance",
   "dark_mode": "Dark Mode",
@@ -64,7 +65,7 @@
   "description_hint": "Let your partner know something about you",
   "partner_preferences": "Partner Preferences",
   "preferred_gender": "Preferred Gender",
-  "preferred_nationality_optional": "Preferred Nationality (Optional)",
+  "preferred_nationality_optional": "Preferred Nationality",
   "age_range_label": "Age Range: {min} - {max} years",
   "location_range_label": "Location Range: {distance} km",
   "male": "Male",
@@ -304,6 +305,7 @@
   },
 
   "profile_setup_page": {
+    "mandatory_field": "This field is mandatory",
     "title": "Profile Setup",
     "step_basic_info": "Basic Information",
     "step_location": "Location",
@@ -338,7 +340,7 @@
     "partner_preferences_title": "Partner Preferences",
     "preferred_gender": "Preferred Gender",
     "any": "Any",
-    "preferred_nationality": "Preferred Nationality (Optional)",
+    "preferred_nationality": "Preferred Nationality",
     "preferred_religion": "Preferred Religion (Optional)",
     "age_range": "Age Range: {min} - {max} years",
     "location_range": "Location Range: {distance} km",
@@ -362,5 +364,7 @@
     "error_getting_location": "Error getting location: {error}",
     "select_dob_error": "Please select your date of birth",
     "error_saving_profile": "Error saving profile: {error}"
+    
   }
+  
 }
