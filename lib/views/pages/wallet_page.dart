@@ -215,7 +215,7 @@ class _WalletPageState extends State<WalletPage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isDarkMode ? Color(0xFFE8C4D8) : Colors.grey[200],
+              color:  Color(0xFFE8C4D8) ,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -267,7 +267,7 @@ class _WalletPageState extends State<WalletPage> {
       children: [
         Text(
           'wallet_page.my_exchanges'.tr(),
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold ),
         ),
         const SizedBox(height: 12),
         StreamBuilder<List<Map<String, dynamic>>>(
@@ -282,7 +282,7 @@ class _WalletPageState extends State<WalletPage> {
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDarkMode ? Color(0xFFE8C4D8) : Colors.grey[200],
+                  color: Color(0xFFE8C4D8),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(

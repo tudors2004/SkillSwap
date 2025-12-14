@@ -487,7 +487,6 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   const SizedBox(height: 16),
                   SizedBox(
                     width: 180,
-                    height: 50,
                     child: ElevatedButton.icon(
                       onPressed: _pickImage,
                       icon: const Icon(Icons.camera_alt),
