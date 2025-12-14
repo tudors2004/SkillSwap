@@ -224,7 +224,8 @@
     "loading": "Lädt...",
     "user_not_found": "Benutzer nicht gefunden",
     "unknown_user": "Unbekannter Benutzer",
-    "no_messages": "Noch keine Nachrichten"
+    "no_messages": "Noch keine Nachrichten",
+    "title": "Nachrichten"
   },
 
   "explore_page": {

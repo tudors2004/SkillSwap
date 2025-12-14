@@ -135,10 +135,19 @@ class _WalletPageState extends State<WalletPage> {
   }
 
   Widget _buildBalanceCard() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFE8C4D8),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            theme.primaryColor,
+            theme.primaryColor.withValues(alpha: 0.85),
+            theme.primaryColor.withValues(alpha: 0.7),
+          ],
+        ),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -150,7 +159,11 @@ class _WalletPageState extends State<WalletPage> {
                 children: [
                   Text(
                     'wallet_page.hours_learned'.tr(),
-                    style: const TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -158,7 +171,7 @@ class _WalletPageState extends State<WalletPage> {
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -167,7 +180,11 @@ class _WalletPageState extends State<WalletPage> {
                 children: [
                   Text(
                     'wallet_page.hours_taught'.tr(),
-                    style: const TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -175,7 +192,7 @@ class _WalletPageState extends State<WalletPage> {
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -190,7 +207,10 @@ class _WalletPageState extends State<WalletPage> {
               const SizedBox(width: 4),
               Text(
                 '${'wallet_page.reputation'.tr()}: ${_reputation.toStringAsFixed(1)}/5.0',
-                style: const TextStyle(fontSize: 16, color: Colors.black54),
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.white70,
+                ),
               ),
             ],
           ),
@@ -198,6 +218,7 @@ class _WalletPageState extends State<WalletPage> {
       ),
     );
   }
+
 
   Widget _buildConnectionsSection() {
 

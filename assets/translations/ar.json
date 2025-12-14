@@ -257,7 +257,8 @@
     "loading": "جارٍ التحميل...",
     "user_not_found": "المستخدم غير موجود",
     "unknown_user": "مستخدم غير معروف",
-    "no_messages": "لا توجد رسائل بعد"
+    "no_messages": "لا توجد رسائل بعد",
+    "title": "بعد"
   },
 
   "explore_page": {

@@ -237,7 +237,8 @@
     "loading": "Caricamento...",
     "user_not_found": "Utente non trovato",
     "unknown_user": "Utente sconosciuto",
-    "no_messages": "Ancora nessun messaggio"
+    "no_messages": "Ancora nessun messaggio",
+    "title": "Messaggi"
   },
 
   "explore_page": {
