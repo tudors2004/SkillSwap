@@ -377,6 +377,9 @@
     "sports": "Sports",
     "art": "Art",
     "cooking": "Cooking",
+    "business": "Business",
+    "science": "Science",
+    "crafts": "Crafts",
     "other": "Other",
     "auto_detected": "Category: {category}"
   }

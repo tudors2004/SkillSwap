@@ -511,13 +511,13 @@ class _SkillsPageState extends State<SkillsPage> {
                   'categories.auto_detected'.tr(
                     namedArgs: {
                       'category':
-                          'categories.${controller.selectedCategory.toLowerCase()}'
+                          'categories.${controller.selectedCategory}'
                               .tr(),
                     },
                   ),
                   style: TextStyle(
                     fontSize: 12,
-                    color: controller.selectedCategory == 'Other'
+                    color: controller.selectedCategory == 'other'
                         ? Colors.grey
                         : Colors.green, // Green if a match is found
                     fontStyle: FontStyle.italic,
@@ -997,7 +997,7 @@ class _SkillInputControllers {
   _SkillInputControllers([
     String name = '',
     String description = '',
-    this.selectedCategory = 'Other',
+    this.selectedCategory = 'other',
   ]) : nameController = TextEditingController(text: name),
        descriptionController = TextEditingController(text: description);
 

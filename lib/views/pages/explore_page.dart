@@ -29,8 +29,8 @@ class _ExplorePageState extends State<ExplorePage>
   bool _isLoadingUsers = true;
   bool _showCompatibleOnly = false;
 
-  // Use Constants for Categories
-  String _selectedCategory = 'All';
+  // Use Constants for Categories (lowercase internal IDs)
+  String _selectedCategory = 'all';
 
   @override
   void initState() {
@@ -48,7 +48,6 @@ class _ExplorePageState extends State<ExplorePage>
     super.dispose();
   }
 
-  // --- DATA LOADING & PARSING ---
   void _listenToUsers() {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) return;
@@ -64,33 +63,52 @@ class _ExplorePageState extends State<ExplorePage>
 
         final data = doc.data();
 
-        // PARSE SKILLS (Handle both Map and String formats)
-        final skillsRaw = data['skillsToOffer'] ?? data['skills']; 
+        // Fetch skills from subcollection (like wallet_page does)
         List<Map<String, dynamic>> skills = [];
-        
-        if (skillsRaw is List) {
-          skills = skillsRaw.map((e) {
-            if (e is Map) {
-              return Map<String, dynamic>.from(e);
-            }
-            return {'name': e.toString(), 'category': 'Other'};
-          }).toList();
-        }
-
-        // PARSE SKILLS TO LEARN
-        final skillsToLearnRaw = data['skillsToLearn'];
         List<Map<String, dynamic>> skillsToLearn = [];
-         if (skillsToLearnRaw is List) {
-          skillsToLearn = skillsToLearnRaw.map((e) {
-             if (e is Map) return Map<String, dynamic>.from(e);
-             return {'name': e.toString(), 'category': 'Other'};
-          }).toList();
+
+        try {
+          final skillsDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(doc.id)
+              .collection('skills')
+              .doc('userSkills')
+              .get();
+
+          if (skillsDoc.exists) {
+            final skillsData = skillsDoc.data();
+            if (skillsData != null) {
+              // Parse skillsToOffer
+              final skillsToOfferRaw = skillsData['skillsToOffer'];
+              if (skillsToOfferRaw is List) {
+                skills = skillsToOfferRaw.map((e) {
+                  if (e is Map) {
+                    return Map<String, dynamic>.from(e);
+                  }
+                  return {'name': e.toString(), 'category': 'other'};
+                }).toList();
+              }
+
+              // Parse skillsToLearn
+              final skillsToLearnRaw = skillsData['skillsToLearn'];
+              if (skillsToLearnRaw is List) {
+                skillsToLearn = skillsToLearnRaw.map((e) {
+                  if (e is Map) {
+                    return Map<String, dynamic>.from(e);
+                  }
+                  return {'name': e.toString(), 'category': 'other'};
+                }).toList();
+              }
+            }
+          }
+        } catch (e) {
+          // Skills subcollection doesn't exist or error - use empty lists
         }
 
         users.add({
           ...data,
           'uid': doc.id,
-          'skills': skills, 
+          'skills': skills,
           'skillsToLearn': skillsToLearn,
         });
       }
@@ -103,6 +121,7 @@ class _ExplorePageState extends State<ExplorePage>
       }
     });
   }
+
 
   Future<void> _loadData() async {
     try {
@@ -258,10 +277,10 @@ class _ExplorePageState extends State<ExplorePage>
         }
       }
 
-      // 2. Category Filter
-      if (_selectedCategory != 'All') {
+      // 2. Category Filter (language-agnostic)
+      if (_selectedCategory != 'all') {
         // Check if ANY skill belongs to the selected category
-        final hasCategoryMatch = skills.any((s) => s['category'] == _selectedCategory);
+        final hasCategoryMatch = skills.any((s) => Constants.skillMatchesCategory(s, _selectedCategory));
         if (!hasCategoryMatch) return false;
       }
 
@@ -305,14 +324,18 @@ class _ExplorePageState extends State<ExplorePage>
 
     for (final user in _allUsers) {
       final skillsToLearn = (user['skillsToLearn'] as List<Map<String, dynamic>>?) ?? [];
-      
-      for (final skillMap in skillsToLearn) {
-        final skillName = skillMap['name'] as String;
-        final skillCategory = skillMap['category'] as String;
 
-        // Apply Category Filter here for skills tab
-        if (_selectedCategory != 'All' && skillCategory != _selectedCategory) {
-          continue; 
+      for (final skillMap in skillsToLearn) {
+        // Add null safety here
+        final skillName = skillMap['name']?.toString();
+        final skillCategory = skillMap['category']?.toString() ?? 'Other';
+
+        // Skip if skillName is null or empty
+        if (skillName == null || skillName.isEmpty) continue;
+
+        // Apply Category Filter here for skills tab (language-agnostic)
+        if (_selectedCategory != 'all' && !Constants.skillMatchesCategory(skillMap, _selectedCategory)) {
+          continue;
         }
 
         if (!skillsToLearnMap.containsKey(skillName)) {
@@ -323,7 +346,7 @@ class _ExplorePageState extends State<ExplorePage>
     }
 
     var filteredSkills = skillsToLearnMap.keys.toList();
-    
+
     // Apply Search Filter for skills tab
     if (_searchQuery.isNotEmpty) {
       filteredSkills = filteredSkills
@@ -356,9 +379,9 @@ class _ExplorePageState extends State<ExplorePage>
         // Apply compatible filter
         final displayUsers = _showCompatibleOnly
             ? usersWantingSkill.where((user) {
-                final compatibility = _checkCompatibility(user);
-                return compatibility['isCompatible'] == true;
-              }).toList()
+          final compatibility = _checkCompatibility(user);
+          return compatibility['isCompatible'] == true;
+        }).toList()
             : usersWantingSkill;
 
         if (displayUsers.isEmpty) return const SizedBox.shrink();
@@ -378,6 +401,7 @@ class _ExplorePageState extends State<ExplorePage>
       },
     );
   }
+
 
 
   Widget _buildUserCard(Map<String, dynamic> user, Map<String, dynamic> compatibility) {

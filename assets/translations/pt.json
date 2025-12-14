@@ -363,6 +363,21 @@
     "error_getting_location": "Erro ao obter localização: {error}",
     "select_dob_error": "Por favor, selecione sua data de nascimento",
     "error_saving_profile": "Erro ao salvar perfil: {error}"
+  },
+  "categories": {
+    "all": "Todos",
+    "programming": "Programação",
+    "music": "Música",
+    "languages": "Idiomas",
+    "sports": "Esportes",
+    "art": "Arte",
+    "cooking": "Culinária",
+    "business": "Negócios",
+    "science": "Ciência",
+    "crafts": "Artesanato",
+    "other": "Outros",
+    "auto_detected": "Categoria: {category}"
   }
+
 }
 
