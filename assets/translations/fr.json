@@ -229,7 +229,8 @@
     "loading": "Chargement...",
     "user_not_found": "Utilisateur introuvable",
     "unknown_user": "Utilisateur inconnu",
-    "no_messages": "Pas encore de messages"
+    "no_messages": "Pas encore de messages",
+    "title": "Messages"
   },
 
   "explore_page": {

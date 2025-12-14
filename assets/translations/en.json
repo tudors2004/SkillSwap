@@ -258,7 +258,8 @@
     "loading": "Loading...",
     "user_not_found": "User not found",
     "unknown_user": "Unknown User",
-    "no_messages": "No messages yet"
+    "no_messages": "No messages yet",
+    "title": "Chats"
   },
 
   "explore_page": {

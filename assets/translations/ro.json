@@ -196,8 +196,8 @@
   "skills_page": {
     "title_edit": "Editează Competențele",
     "title_view": "Competențele Mele",
-    "skills_to_offer": "Competențe pe care le pot Oferi",
-    "skills_to_learn": "Competențe pe care vreau să le Învăț",
+    "skills_to_offer": "Competențe pe care le pot oferi",
+    "skills_to_learn": "Competențe pe care vreau să le învăț",
     "add_skill": "Adaugă Competență",
     "save_skills": "Salvează Competențele",
     "edit_skills": "Editează Competențele",
@@ -257,7 +257,8 @@
     "loading": "Se încarcă...",
     "user_not_found": "Utilizator negăsit",
     "unknown_user": "Utilizator Necunoscut",
-    "no_messages": "Încă niciun mesaj"
+    "no_messages": "Încă niciun mesaj",
+    "title": "Mesaje"
   },
 
   "explore_page": {
