@@ -46,7 +46,7 @@ class _SkillsPageState extends State<SkillsPage> {
             _initializeControllersFromData(data);
             _isEditing = false;
           } else {
-            _isEditing = false; 
+            _isEditing = false;
           }
           _isLoading = false;
         });
@@ -57,37 +57,50 @@ class _SkillsPageState extends State<SkillsPage> {
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('skills_page.error_loading_skills'.tr(namedArgs: {'error': e.toString()}))),
+          SnackBar(
+            content: Text(
+              'skills_page.error_loading_skills'.tr(
+                namedArgs: {'error': e.toString()},
+              ),
+            ),
+          ),
         );
       }
     }
   }
 
   void _initializeControllersFromData(Map<String, dynamic> data) {
-    final skillsToOffer = (data['skillsToOffer'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-    final skillsToLearn = (data['skillsToLearn'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final skillsToOffer =
+        (data['skillsToOffer'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final skillsToLearn =
+        (data['skillsToLearn'] as List?)?.cast<Map<String, dynamic>>() ?? [];
 
     _skillsToOfferControllers.clear();
     for (var skill in skillsToOffer) {
-      _skillsToOfferControllers.add(_SkillInputControllers(
-        skill['name'] ?? '',
-        skill['description'] ?? '',
-        skill['category'] ?? 'Other',
-      ));
+      _skillsToOfferControllers.add(
+        _SkillInputControllers(
+          skill['name'] ?? '',
+          skill['description'] ?? '',
+          skill['category'] ?? 'Other',
+        ),
+      );
     }
 
     _skillsToLearnControllers.clear();
     for (var skill in skillsToLearn) {
-      _skillsToLearnControllers.add(_SkillInputControllers(
-        skill['name'] ?? '',
-        skill['description'] ?? '',
-        skill['category'] ?? 'Other',
-      ));
+      _skillsToLearnControllers.add(
+        _SkillInputControllers(
+          skill['name'] ?? '',
+          skill['description'] ?? '',
+          skill['category'] ?? 'Other',
+        ),
+      );
     }
   }
 
   void _addNewSkillToOffer({bool isFirstTime = false}) {
-    if (!isFirstTime && _skillsToOfferControllers.any((c) => c.nameController.text.isEmpty)) {
+    if (!isFirstTime &&
+        _skillsToOfferControllers.any((c) => c.nameController.text.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('skills_page.fill_existing_skill'.tr())),
       );
@@ -99,7 +112,8 @@ class _SkillsPageState extends State<SkillsPage> {
   }
 
   void _addNewSkillToLearn({bool isFirstTime = false}) {
-    if (!isFirstTime && _skillsToLearnControllers.any((c) => c.nameController.text.isEmpty)) {
+    if (!isFirstTime &&
+        _skillsToLearnControllers.any((c) => c.nameController.text.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('skills_page.fill_existing_skill'.tr())),
       );
@@ -126,23 +140,27 @@ class _SkillsPageState extends State<SkillsPage> {
 
   Future<void> _saveSkills() async {
     final skillsToOffer = _skillsToOfferControllers
-        .map((c) => {
-              'name': c.nameController.text, 
-              'description': c.descriptionController.text,
-              'category': c.selectedCategory // Saving the category!
-            })
+        .map(
+          (c) => {
+            'name': c.nameController.text,
+            'description': c.descriptionController.text,
+            'category': c.selectedCategory, // Saving the category!
+          },
+        )
         .where((skill) => (skill['name'] as String).isNotEmpty)
         .toList();
 
     final skillsToLearn = _skillsToLearnControllers
-        .map((c) => {
-              'name': c.nameController.text, 
-              'description': '',
-              'category': c.selectedCategory // Saving the category!
-            })
+        .map(
+          (c) => {
+            'name': c.nameController.text,
+            'description': '',
+            'category': c.selectedCategory, // Saving the category!
+          },
+        )
         .where((skill) => (skill['name'] as String).isNotEmpty)
         .toList();
-    
+
     if (skillsToOffer.isEmpty && skillsToLearn.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('skills_page.add_at_least_one_skill'.tr())),
@@ -167,11 +185,17 @@ class _SkillsPageState extends State<SkillsPage> {
         setState(() {
           _isEditing = false;
         });
-      } 
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('skills_page.error_saving_skills'.tr(namedArgs: {'error': e.toString()}))),
+          SnackBar(
+            content: Text(
+              'skills_page.error_saving_skills'.tr(
+                namedArgs: {'error': e.toString()},
+              ),
+            ),
+          ),
         );
       }
     } finally {
@@ -242,7 +266,11 @@ class _SkillsPageState extends State<SkillsPage> {
                         color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.edit_note, size: 50, color: Colors.white),
+                      child: const Icon(
+                        Icons.edit_note,
+                        size: 50,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -360,9 +388,9 @@ class _SkillsPageState extends State<SkillsPage> {
     VoidCallback addSkill,
     Function(int) removeSkill,
     Color accentColor,
-    IconData icon,
-    {required bool showDescription}
-  ) {
+    IconData icon, {
+    required bool showDescription,
+  }) {
     final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
@@ -395,7 +423,9 @@ class _SkillsPageState extends State<SkillsPage> {
                 Expanded(
                   child: Text(
                     title,
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -404,7 +434,12 @@ class _SkillsPageState extends State<SkillsPage> {
             const Divider(),
             const SizedBox(height: 12),
             ...List.generate(controllers.length, (index) {
-              return _buildSkillInput(controllers[index], () => removeSkill(index), accentColor, showDescription: showDescription);
+              return _buildSkillInput(
+                controllers[index],
+                () => removeSkill(index),
+                accentColor,
+                showDescription: showDescription,
+              );
             }),
             const SizedBox(height: 8),
             Center(
@@ -413,7 +448,10 @@ class _SkillsPageState extends State<SkillsPage> {
                 icon: Icon(Icons.add_circle_outline, color: accentColor),
                 label: Text(
                   'skills_page.add_skill'.tr(),
-                  style: TextStyle(color: accentColor, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: accentColor,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -423,7 +461,12 @@ class _SkillsPageState extends State<SkillsPage> {
     );
   }
 
-  Widget _buildSkillInput(_SkillInputControllers controller, VoidCallback onRemove, Color accentColor, {required bool showDescription}) {
+  Widget _buildSkillInput(
+    _SkillInputControllers controller,
+    VoidCallback onRemove,
+    Color accentColor, {
+    required bool showDescription,
+  }) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
@@ -431,7 +474,7 @@ class _SkillsPageState extends State<SkillsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
@@ -450,17 +493,8 @@ class _SkillsPageState extends State<SkillsPage> {
               ),
               // --- AUTO DETECT LOGIC ---
               onChanged: (value) {
-                final lowerValue = value.trim().toLowerCase();
-                String newCategory = 'Other';
+                final newCategory = Constants.detectCategory(value);
 
-                // Check for keywords in our Dictionary
-                for (var key in Constants.kSkillKeywordMap.keys) {
-                  if (lowerValue.contains(key)) {
-                    newCategory = Constants.kSkillKeywordMap[key]!;
-                    break; 
-                  }
-                }
-                
                 if (controller.selectedCategory != newCategory) {
                   setState(() {
                     controller.selectedCategory = newCategory;
@@ -468,26 +502,30 @@ class _SkillsPageState extends State<SkillsPage> {
                 }
               },
             ),
-            
+
             // Show the auto-detected category
             if (controller.nameController.text.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0, left: 4.0),
                 child: Text(
-                  'categories.auto_detected'.tr(namedArgs: {
-                    'category': 'categories.${controller.selectedCategory.toLowerCase()}'.tr()
-                  }),
+                  'categories.auto_detected'.tr(
+                    namedArgs: {
+                      'category':
+                          'categories.${controller.selectedCategory.toLowerCase()}'
+                              .tr(),
+                    },
+                  ),
                   style: TextStyle(
                     fontSize: 12,
-                    color: controller.selectedCategory == 'Other' 
-                        ? Colors.grey 
+                    color: controller.selectedCategory == 'Other'
+                        ? Colors.grey
                         : Colors.green, // Green if a match is found
                     fontStyle: FontStyle.italic,
                   ),
                 ),
               ),
 
-            if(showDescription) ...[
+            if (showDescription) ...[
               const SizedBox(height: 12),
               TextFormField(
                 controller: controller.descriptionController,
@@ -497,7 +535,7 @@ class _SkillsPageState extends State<SkillsPage> {
                 ),
                 maxLines: 2,
               ),
-            ]
+            ],
           ],
         ),
       ),
@@ -506,8 +544,14 @@ class _SkillsPageState extends State<SkillsPage> {
 
   Widget _buildSkillsView() {
     final theme = Theme.of(context);
-    final skillsToOffer = (_skillsData!['skillsToOffer'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-    final skillsToLearn = (_skillsData!['skillsToLearn'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final skillsToOffer =
+        (_skillsData!['skillsToOffer'] as List?)
+            ?.cast<Map<String, dynamic>>() ??
+        [];
+    final skillsToLearn =
+        (_skillsData!['skillsToLearn'] as List?)
+            ?.cast<Map<String, dynamic>>() ??
+        [];
 
     final totalSkills = skillsToOffer.length + skillsToLearn.length;
 
@@ -551,7 +595,11 @@ class _SkillsPageState extends State<SkillsPage> {
                         color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.psychology, size: 50, color: Colors.white),
+                      child: const Icon(
+                        Icons.psychology,
+                        size: 50,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -565,7 +613,10 @@ class _SkillsPageState extends State<SkillsPage> {
                     ),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
@@ -593,11 +644,18 @@ class _SkillsPageState extends State<SkillsPage> {
                         },
                         borderRadius: BorderRadius.circular(25),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.edit_outlined, size: 20, color: theme.primaryColor),
+                              Icon(
+                                Icons.edit_outlined,
+                                size: 20,
+                                color: theme.primaryColor,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 'skills_page.edit_skills'.tr(),
@@ -651,9 +709,9 @@ class _SkillsPageState extends State<SkillsPage> {
     String title,
     List<Map<String, dynamic>> skills,
     Color accentColor,
-    IconData icon,
-    {required bool showDescription}
-  ) {
+    IconData icon, {
+    required bool showDescription,
+  }) {
     final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
@@ -686,11 +744,16 @@ class _SkillsPageState extends State<SkillsPage> {
                 Expanded(
                   child: Text(
                     title,
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: accentColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -715,7 +778,9 @@ class _SkillsPageState extends State<SkillsPage> {
                   child: Text(
                     'skills_page.no_skills_added_section'.tr(),
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                      color: theme.textTheme.bodySmall?.color?.withValues(
+                        alpha: 0.7,
+                      ),
                     ),
                   ),
                 ),
@@ -726,7 +791,10 @@ class _SkillsPageState extends State<SkillsPage> {
                 runSpacing: 10,
                 children: skills.map((skill) {
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -752,7 +820,9 @@ class _SkillsPageState extends State<SkillsPage> {
                             fontSize: 14,
                           ),
                         ),
-                        if (showDescription && skill['description'] != null && skill['description'].toString().isNotEmpty) ...[
+                        if (showDescription &&
+                            skill['description'] != null &&
+                            skill['description'].toString().isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
                             skill['description'],
@@ -815,7 +885,11 @@ class _SkillsPageState extends State<SkillsPage> {
                         color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.psychology, size: 60, color: Colors.white),
+                      child: const Icon(
+                        Icons.psychology,
+                        size: 60,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     Text(
@@ -841,7 +915,9 @@ class _SkillsPageState extends State<SkillsPage> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.3,
+                    ),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -869,16 +945,23 @@ class _SkillsPageState extends State<SkillsPage> {
                       setState(() {
                         _isEditing = true;
                         if (_skillsToOfferControllers.isEmpty) {
-                          _skillsToOfferControllers.add(_SkillInputControllers());
+                          _skillsToOfferControllers.add(
+                            _SkillInputControllers(),
+                          );
                         }
                         if (_skillsToLearnControllers.isEmpty) {
-                          _skillsToLearnControllers.add(_SkillInputControllers());
+                          _skillsToLearnControllers.add(
+                            _SkillInputControllers(),
+                          );
                         }
                       });
                     },
                     borderRadius: BorderRadius.circular(25),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -912,9 +995,9 @@ class _SkillInputControllers {
   String selectedCategory;
 
   _SkillInputControllers([
-    String name = '', 
-    String description = '', 
-    this.selectedCategory = 'Other'
+    String name = '',
+    String description = '',
+    this.selectedCategory = 'Other',
   ]) : nameController = TextEditingController(text: name),
        descriptionController = TextEditingController(text: description);
 

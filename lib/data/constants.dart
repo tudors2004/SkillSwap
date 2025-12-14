@@ -104,6 +104,22 @@ class Constants {
   'photography': 'Art',
   };
 
+  static String detectCategory(String skillName) {
+    if (skillName.isEmpty) return 'Other';
+    
+    final lowerValue = skillName.trim().toLowerCase();
+    
+    var sortedKeys = kSkillKeywordMap.keys.toList()
+      ..sort((a, b) => b.length.compareTo(a.length));
+
+    for (var key in sortedKeys) {
+      if (lowerValue.contains(key.toLowerCase())) {
+        return kSkillKeywordMap[key]!;
+      }
+    }
+    return 'Other';
+  }
+
   static const List<Map<String, String>> phoneCountryCodes = [
     {'name': 'Afghanistan', 'code': '+93'},
     {'name': 'Albania', 'code': '+355'},

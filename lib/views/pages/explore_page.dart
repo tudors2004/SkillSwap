@@ -65,7 +65,7 @@ class _ExplorePageState extends State<ExplorePage>
         final data = doc.data();
 
         // PARSE SKILLS (Handle both Map and String formats)
-        final skillsRaw = data['skillsToOffer'] ?? data['skills']; // Try new format, fallback to old
+        final skillsRaw = data['skillsToOffer'] ?? data['skills']; 
         List<Map<String, dynamic>> skills = [];
         
         if (skillsRaw is List) {
@@ -90,7 +90,7 @@ class _ExplorePageState extends State<ExplorePage>
         users.add({
           ...data,
           'uid': doc.id,
-          'skills': skills, // Internal format is now List<Map>
+          'skills': skills, 
           'skillsToLearn': skillsToLearn,
         });
       }
@@ -107,7 +107,6 @@ class _ExplorePageState extends State<ExplorePage>
   Future<void> _loadData() async {
     try {
       final profile = await _profileService.getProfile();
-      // We rely on the stream listener for users, no need to fetch manually here
       if (mounted) {
         setState(() {
           _myProfile = profile;
@@ -118,7 +117,7 @@ class _ExplorePageState extends State<ExplorePage>
     }
   }
 
-  // --- UI BUILDING ---
+  
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -160,7 +159,6 @@ class _ExplorePageState extends State<ExplorePage>
           ),
         ),
 
-        // CATEGORY CHIPS
         SizedBox(
           height: 40,
           child: ListView.separated(
@@ -234,7 +232,6 @@ class _ExplorePageState extends State<ExplorePage>
     );
   }
 
-  // --- FILTER LOGIC ---
   Widget _buildPeopleTab() {
     if (_isLoadingUsers) {
       return const Center(child: CircularProgressIndicator());
@@ -382,7 +379,6 @@ class _ExplorePageState extends State<ExplorePage>
     );
   }
 
-  // --- HELPER WIDGETS ---
 
   Widget _buildUserCard(Map<String, dynamic> user, Map<String, dynamic> compatibility) {
     if (user['uid'] == null || user['name'] == null) return const SizedBox.shrink();
