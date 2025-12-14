@@ -343,10 +343,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: theme.primaryColor.withValues(alpha: 0.1),
+                    color: Colors.purple.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(Icons.person_outline, color: theme.primaryColor, size: 24),
+                  child: Icon(Icons.person_outline, color: Colors.purple, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Text(

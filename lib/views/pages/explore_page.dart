@@ -22,8 +22,6 @@ import 'package:skillswap/views/pages/chat_list_page.dart';
 
 */
 
-
-
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
 
