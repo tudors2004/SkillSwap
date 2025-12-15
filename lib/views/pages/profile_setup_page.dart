@@ -430,6 +430,8 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final Color stepperColor = theme.colorScheme.primary;
     return Scaffold(
       appBar: AppBar(
         title: Text('profile_setup_page.title'.tr()),
@@ -437,6 +439,13 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       ),
       body: Form(
         key: _formKey,
+        child: Theme( 
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: stepperColor, // This changes the Active Circle and the Line
+              secondary: stepperColor, // Fallback for some widgets
+            ),
+          ),
         child: Stepper(
           controlsBuilder: (BuildContext context, ControlsDetails details) {
             return Padding(
@@ -452,7 +461,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   const SizedBox(width: 10),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.primaryColor,
+                      backgroundColor: stepperColor,
                       foregroundColor: theme.colorScheme.onPrimary,
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                     ),
@@ -487,7 +496,6 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   const SizedBox(height: 16),
                   SizedBox(
                     width: 180,
-                    height: 50,
                     child: ElevatedButton.icon(
                       onPressed: _pickImage,
                       icon: const Icon(Icons.camera_alt),
@@ -776,7 +784,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     ),
                     onChanged: (v) => setState(() => _preferredNationality = v),
                     validator: (v) =>
-                    v == null ? 'profile_setup_page.preferred_nationality_required'.tr() : null,
+                    v == null ? 'profile_setup_page.mandatory_field'.tr() : null,
                   ),
 
                   const SizedBox(height: 16),
@@ -827,6 +835,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

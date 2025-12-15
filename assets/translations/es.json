@@ -237,7 +237,8 @@
     "loading": "Cargando...",
     "user_not_found": "Usuario no encontrado",
     "unknown_user": "Usuario desconocido",
-    "no_messages": "Aún no hay mensajes"
+    "no_messages": "Aún no hay mensajes",
+    "title": "Mensajes"
   },
 
   "explore_page": {
@@ -342,5 +343,21 @@
     "error_getting_location": "Error al obtener la ubicación: {error}",
     "select_dob_error": "Por favor, selecciona tu fecha de nacimiento",
     "error_saving_profile": "Error al guardar el perfil: {error}"
+  },
+
+  "categories": {
+    "all": "Todos",
+    "programming": "Programación",
+    "music": "Música",
+    "languages": "Idiomas",
+    "sports": "Deportes",
+    "art": "Arte",
+    "cooking": "Cocina",
+    "business": "Negocios",
+    "science": "Ciencia",
+    "crafts": "Manualidades",
+    "other": "Otros",
+    "auto_detected": "Categoría: {category}"
   }
+
 }

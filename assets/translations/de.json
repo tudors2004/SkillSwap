@@ -224,7 +224,8 @@
     "loading": "Lädt...",
     "user_not_found": "Benutzer nicht gefunden",
     "unknown_user": "Unbekannter Benutzer",
-    "no_messages": "Noch keine Nachrichten"
+    "no_messages": "Noch keine Nachrichten",
+    "title": "Nachrichten"
   },
 
   "explore_page": {
@@ -329,5 +330,21 @@
     "error_getting_location": "Fehler beim Ermitteln des Standorts: {error}",
     "select_dob_error": "Bitte wählen Sie Ihr Geburtsdatum aus",
     "error_saving_profile": "Fehler beim Speichern des Profils: {error}"
+  },
+
+  "categories": {
+    "all": "Alle",
+    "programming": "Programmierung",
+    "music": "Musik",
+    "languages": "Sprachen",
+    "sports": "Sport",
+    "art": "Kunst",
+    "cooking": "Kochen",
+    "business": "Geschäft",
+    "science": "Wissenschaft",
+    "crafts": "Handwerk",
+    "other": "Sonstiges",
+    "auto_detected": "Kategorie: {category}"
   }
+
 }

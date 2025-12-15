@@ -257,7 +257,8 @@
     "loading": "جارٍ التحميل...",
     "user_not_found": "المستخدم غير موجود",
     "unknown_user": "مستخدم غير معروف",
-    "no_messages": "لا توجد رسائل بعد"
+    "no_messages": "لا توجد رسائل بعد",
+    "title": "بعد"
   },
 
   "explore_page": {
@@ -362,6 +363,22 @@
     "error_getting_location": "حدث خطأ أثناء الحصول على الموقع: {error}",
     "select_dob_error": "يرجى اختيار تاريخ الميلاد",
     "error_saving_profile": "حدث خطأ أثناء حفظ الملف الشخصي: {error}"
+  },
+
+  "categories": {
+    "all": "الكل",
+    "programming": "البرمجة",
+    "music": "الموسيقى",
+    "languages": "اللغات",
+    "sports": "الرياضة",
+    "art": "الفن",
+    "cooking": "الطبخ",
+    "business": "الأعمال",
+    "science": "العلوم",
+    "crafts": "الحرف اليدوية",
+    "other": "أخرى",
+    "auto_detected": "الفئة: {category}"
   }
+
 }
 
