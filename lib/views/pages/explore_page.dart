@@ -63,7 +63,7 @@ class _ExplorePageState extends State<ExplorePage>
 
         final data = doc.data();
 
-        // Fetch skills from subcollection (like wallet_page does)
+        // Fetch skills from subcollection
         List<Map<String, dynamic>> skills = [];
         List<Map<String, dynamic>> skillsToLearn = [];
 
@@ -78,7 +78,6 @@ class _ExplorePageState extends State<ExplorePage>
           if (skillsDoc.exists) {
             final skillsData = skillsDoc.data();
             if (skillsData != null) {
-              // Parse skillsToOffer
               final skillsToOfferRaw = skillsData['skillsToOffer'];
               if (skillsToOfferRaw is List) {
                 skills = skillsToOfferRaw.map((e) {
@@ -89,7 +88,6 @@ class _ExplorePageState extends State<ExplorePage>
                 }).toList();
               }
 
-              // Parse skillsToLearn
               final skillsToLearnRaw = skillsData['skillsToLearn'];
               if (skillsToLearnRaw is List) {
                 skillsToLearn = skillsToLearnRaw.map((e) {
@@ -102,7 +100,7 @@ class _ExplorePageState extends State<ExplorePage>
             }
           }
         } catch (e) {
-          // Skills subcollection doesn't exist or error - use empty lists
+          // Skills subcollection doesn't exist or error
         }
 
         users.add({
@@ -110,6 +108,7 @@ class _ExplorePageState extends State<ExplorePage>
           'uid': doc.id,
           'skills': skills,
           'skillsToLearn': skillsToLearn,
+          'reputation': (data['reputation'] ?? 0.0).toDouble(),
         });
       }
 
@@ -121,6 +120,7 @@ class _ExplorePageState extends State<ExplorePage>
       }
     });
   }
+
 
 
   Future<void> _loadData() async {
@@ -406,11 +406,11 @@ class _ExplorePageState extends State<ExplorePage>
 
   Widget _buildUserCard(Map<String, dynamic> user, Map<String, dynamic> compatibility) {
     if (user['uid'] == null || user['name'] == null) return const SizedBox.shrink();
-    
+
     final isCompatible = compatibility['isCompatible'] as bool;
     final theme = Theme.of(context);
-    
-    // EXTRACT SKILL NAMES FOR DISPLAY
+    final reputation = (user['reputation'] ?? 0.0).toDouble();
+
     final skills = (user['skills'] as List<Map<String, dynamic>>?) ?? [];
     final skillNames = skills.map((s) => s['name'].toString()).toList();
 
@@ -429,7 +429,6 @@ class _ExplorePageState extends State<ExplorePage>
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              // AVATAR
               Stack(
                 children: [
                   CircleAvatar(
@@ -459,7 +458,6 @@ class _ExplorePageState extends State<ExplorePage>
                 ],
               ),
               const SizedBox(width: 12),
-              // TEXT
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -467,6 +465,19 @@ class _ExplorePageState extends State<ExplorePage>
                     Text(
                       user['name'] ?? 'explore_page.unknown'.tr(),
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.star, size: 14, color: Colors.amber),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${reputation.toStringAsFixed(1)}/5.0',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     if (skillNames.isNotEmpty)
@@ -494,6 +505,7 @@ class _ExplorePageState extends State<ExplorePage>
       ),
     );
   }
+
 
   Widget _buildSkillUserTile(Map<String, dynamic> user, String skill, Map<String, dynamic> compatibility) {
     // Similar to buildUserCard but simpler for the Expandable list
@@ -612,10 +624,101 @@ class _ExplorePageState extends State<ExplorePage>
 
   double _toRadians(double degrees) => degrees * pi / 180;
 
+  void _showMockReportDialog(String userName) {
+    final reasons = [
+      'Inappropriate Behavior',
+      'Fake Profile',
+      'Harassment',
+      'Spam',
+      'Other',
+    ];
+
+    String? selectedReason;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Row(
+            children: [
+              const Icon(Icons.report, color: Colors.red),
+              const SizedBox(width: 8),
+              const Text('Report User'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  border: Border.all(color: Colors.orange),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning, color: Colors.orange, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'False reports may result in penalties',
+                        style: TextStyle(
+                          color: Colors.orange.shade900,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text('Report $userName for:', style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              ...reasons.map((reason) => RadioListTile<String>(
+                title: Text(reason, style: const TextStyle(fontSize: 14)),
+                value: reason,
+                groupValue: selectedReason,
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                onChanged: (value) => setState(() => selectedReason = value),
+              )),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: selectedReason == null
+                  ? null
+                  : () {
+                Navigator.pop(context);
+                // Mock submission
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Report submitted successfully'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Submit'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   void _showCompatibilityDialog(Map<String, dynamic> user, Map<String, dynamic> compatibility) async {
-    // ... Copy your existing dialog logic here, ensure you use 'user['uid']' ...
-    // Since the dialog logic is long and mostly UI, I kept it standard.
-    // Just ensure you call ConnectionService().getConnectionStatus(user['uid']);
      final isCompatible = compatibility['isCompatible'] as bool;
     final reasons = (compatibility['reasons'] as List<dynamic>).map((e) => e.toString()).toList();
     final connectionService = ConnectionService();
@@ -690,8 +793,22 @@ class _ExplorePageState extends State<ExplorePage>
           ),
           child: Text('explore_page.close'.tr()),
         ),
+          const SizedBox(width: 10),
 
-  const SizedBox(width: 10),
+          TextButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              _showMockReportDialog(user['name'] ?? 'User');
+            },
+            icon: const Icon(Icons.flag, color: Colors.red, size: 18),
+            label: const Text(
+              'Report',
+              style: TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+
+
+          const SizedBox(width: 10),
           if (status == null)
             ElevatedButton(
               onPressed: () async {

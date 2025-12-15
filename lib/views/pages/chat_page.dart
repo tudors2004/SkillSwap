@@ -1,4 +1,4 @@
-import 'dart:io'; // Import Platform
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:skillswap/services/connection_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,7 +26,6 @@ class _ChatPageState extends State<ChatPage> {
     _connectionService.markMessageAsRead(widget.chatId);
   }
 
-  /// Handle Standard Phone Call
   Future<void> _handlePhoneCall() async {
     final phoneNumber = widget.otherUser['phoneNumber'] as String?;
     if (phoneNumber == null || phoneNumber.isEmpty) {
@@ -45,7 +44,6 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  /// NEW: Handle Video Call
   Future<void> _handleVideoCall() async {
     final phoneNumber = widget.otherUser['phoneNumber'] as String?;
     if (phoneNumber == null || phoneNumber.isEmpty) {
@@ -70,9 +68,7 @@ class _ChatPageState extends State<ChatPage> {
         // Try FaceTime
         videoUri = Uri(scheme: 'facetime', path: phoneNumber);
       } else {
-        // Try WhatsApp for Android (Opens chat, user taps video button)
-        // Note: Direct video intent isn't public API for WhatsApp,
-        // but this is the closest "phone number" based link.
+
         videoUri = Uri.parse("whatsapp://send?phone=$phoneNumber");
       }
 
@@ -87,7 +83,6 @@ class _ChatPageState extends State<ChatPage> {
       }
     } catch (e) {
       if (mounted) {
-        // Provide a specific error message for Android users without WhatsApp
         if (!Platform.isIOS && uri.toString().contains('whatsapp')) {
           _showSnackBar('Could not launch WhatsApp. Is it installed?');
         } else {
@@ -134,7 +129,6 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: Text(widget.otherUser['name'] ?? 'Chat'),
         actions: [
-          // NEW: Video Call Button
           IconButton(
             icon: const Icon(Icons.videocam),
             onPressed: _handleVideoCall,
